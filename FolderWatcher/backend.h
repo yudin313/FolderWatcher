@@ -7,4 +7,4 @@
 
 #include "directories.h"
 
-int backend_main(std::string);
+int backend_main(std::string,char* folderwathcher_path);
