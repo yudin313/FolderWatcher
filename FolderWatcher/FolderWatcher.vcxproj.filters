@@ -11,6 +11,9 @@
     <Filter Include="Hash">
       <UniqueIdentifier>{2cc41d4b-4bb3-4896-9e39-81412cdfd8cd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Frontend\Images">
+      <UniqueIdentifier>{2247dc50-6d74-4dc2-b083-41c6ff62041b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyForm.h">
@@ -24,6 +27,12 @@
     </ClInclude>
     <ClInclude Include="backend.h">
       <Filter>Backend</Filter>
+    </ClInclude>
+    <ClInclude Include="Parameters.h">
+      <Filter>Frontend</Filter>
+    </ClInclude>
+    <ClInclude Include="Form_Journal.h">
+      <Filter>Frontend</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -39,5 +48,73 @@
     <ClCompile Include="directories.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
+    <ClCompile Include="Form_Journal.cpp">
+      <Filter>Frontend</Filter>
+    </ClCompile>
+    <ClCompile Include="Parameters.cpp">
+      <Filter>Frontend</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Images\browse.png">
+      <Filter>Frontend\Images</Filter>
+    </Image>
+    <Image Include="Images\exit.png">
+      <Filter>Frontend\Images</Filter>
+    </Image>
+    <Image Include="Images\export.png">
+      <Filter>Frontend\Images</Filter>
+    </Image>
+    <Image Include="Images\find.png">
+      <Filter>Frontend\Images</Filter>
+    </Image>
+    <Image Include="Images\help.png">
+      <Filter>Frontend\Images</Filter>
+    </Image>
+    <Image Include="Images\icon.ico">
+      <Filter>Frontend\Images</Filter>
+    </Image>
+    <Image Include="Images\image_black.png">
+      <Filter>Frontend\Images</Filter>
+    </Image>
+    <Image Include="Images\image_white.png">
+      <Filter>Frontend\Images</Filter>
+    </Image>
+    <Image Include="Images\info.png">
+      <Filter>Frontend\Images</Filter>
+    </Image>
+    <Image Include="Images\language.png">
+      <Filter>Frontend\Images</Filter>
+    </Image>
+    <Image Include="Images\logs.png">
+      <Filter>Frontend\Images</Filter>
+    </Image>
+    <Image Include="Images\mode.png">
+      <Filter>Frontend\Images</Filter>
+    </Image>
+    <Image Include="Images\parametrs.png">
+      <Filter>Frontend\Images</Filter>
+    </Image>
+    <Image Include="Images\progress.gif">
+      <Filter>Frontend\Images</Filter>
+    </Image>
+    <Image Include="Images\ready.png">
+      <Filter>Frontend\Images</Filter>
+    </Image>
+    <Image Include="Images\refresh.png">
+      <Filter>Frontend\Images</Filter>
+    </Image>
+    <Image Include="Images\running.png">
+      <Filter>Frontend\Images</Filter>
+    </Image>
+    <Image Include="Images\snapshot.png">
+      <Filter>Frontend\Images</Filter>
+    </Image>
+    <Image Include="Images\start.png">
+      <Filter>Frontend\Images</Filter>
+    </Image>
+    <Image Include="Images\completed.png">
+      <Filter>Frontend\Images</Filter>
+    </Image>
   </ItemGroup>
 </Project>
