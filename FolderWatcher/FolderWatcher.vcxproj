@@ -157,6 +157,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="directories.cpp" />
+    <ClCompile Include="Form_Journal.cpp" />
     <ClCompile Include="hash.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
@@ -170,10 +171,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="backend.cpp" />
+    <ClCompile Include="Parameters.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="backend.h" />
     <ClInclude Include="directories.h" />
+    <ClInclude Include="Form_Journal.h" />
     <ClInclude Include="hash.h" />
     <ClInclude Include="MyForm.h">
       <FileType>CppForm</FileType>
@@ -182,6 +185,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Parameters.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="MyForm.resx">
@@ -189,6 +195,31 @@
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Example.MyForm.resources</LogicalName>
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Example.MyForm.resources</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Parameters.resx">
+      <DependentUpon>Parameters.h</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Images\browse.png" />
+    <Image Include="Images\completed.png" />
+    <Image Include="Images\exit.png" />
+    <Image Include="Images\export.png" />
+    <Image Include="Images\find.png" />
+    <Image Include="Images\help.png" />
+    <Image Include="Images\icon.ico" />
+    <Image Include="Images\image_black.png" />
+    <Image Include="Images\image_white.png" />
+    <Image Include="Images\info.png" />
+    <Image Include="Images\language.png" />
+    <Image Include="Images\logs.png" />
+    <Image Include="Images\mode.png" />
+    <Image Include="Images\parametrs.png" />
+    <Image Include="Images\progress.gif" />
+    <Image Include="Images\ready.png" />
+    <Image Include="Images\refresh.png" />
+    <Image Include="Images\running.png" />
+    <Image Include="Images\snapshot.png" />
+    <Image Include="Images\start.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
