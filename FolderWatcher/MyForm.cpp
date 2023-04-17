@@ -3,6 +3,8 @@
 #include <fileapi.h>
 #include <iostream>
 
+bool check_box[7] = { true,true, true, true, true, true, true};
+int depth = 0;
 using namespace System;
 using namespace System::Windows::Forms;
 [STAThreadAttribute]

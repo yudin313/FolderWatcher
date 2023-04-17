@@ -102,7 +102,8 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)Dependencies\openssl\libcrypto-3.dll $(OutDir)</Command>
+      <Command>copy "$(SolutionDir)"Dependencies\openssl\libcrypto-3.dll "$(OutDir)"
+copy "$(SolutionDir)"Dependencies\Interop\Interop.Microsoft.Office.Interop.Excel.1.9.dll "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -116,7 +117,8 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)Dependencies\openssl\libcrypto-3.dll $(OutDir)</Command>
+      <Command>copy "$(SolutionDir)"Dependencies\openssl\libcrypto-3.dll "$(OutDir)"
+copy "$(SolutionDir)"Dependencies\Interop\Interop.Microsoft.Office.Interop.Excel.1.9.dll "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -130,7 +132,8 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)Dependencies\openssl\libcrypto-3.dll $(OutDir)</Command>
+      <Command>copy "$(SolutionDir)"Dependencies\openssl\libcrypto-3.dll "$(OutDir)"
+copy "$(SolutionDir)"Dependencies\Interop\Interop.Microsoft.Office.Interop.Excel.1.9.dll "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -144,7 +147,8 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)Dependencies\openssl\libcrypto-3.dll $(OutDir)</Command>
+      <Command>copy "$(SolutionDir)"Dependencies\openssl\libcrypto-3.dll "$(OutDir)"
+copy "$(SolutionDir)"Dependencies\Interop\Interop.Microsoft.Office.Interop.Excel.1.9.dll "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -174,6 +178,7 @@
     <ClCompile Include="Parameters.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\FolderWatcher\FolderWatcher\globals.h" />
     <ClInclude Include="backend.h" />
     <ClInclude Include="directories.h" />
     <ClInclude Include="Form_Journal.h" />
@@ -220,6 +225,17 @@
     <Image Include="Images\running.png" />
     <Image Include="Images\snapshot.png" />
     <Image Include="Images\start.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="Microsoft.Office.Interop.Excel.1.9">
+      <VersionMinor>9</VersionMinor>
+      <VersionMajor>1</VersionMajor>
+      <Guid>00020813-0000-0000-c000-000000000046</Guid>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </COMReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

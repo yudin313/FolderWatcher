@@ -108,7 +108,7 @@ void if_file(char* NAME, int constants, char* NAME_EXIT)
     strncat(HASH_EXIT_CURRENT, "_hash", 5);
     strncat(HASH_EXIT_CURRENT, ".txt", 4);
 
-    hashes_file(NAME_EXIT_CURRENT, HASH_EXIT_CURRENT);
+    //hashes_file(NAME_EXIT_CURRENT, HASH_EXIT_CURRENT);
 }
 
 /////////////////////////////////////////////////////////

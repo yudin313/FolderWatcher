@@ -9,12 +9,20 @@
 #include "Form_Journal.h"
 #include "Parameters.h"
 #include "backend.h"
-
+#include "globals.h"
 #include <msclr\marshal_cppstd.h>
+#include<vector>
+#include <Shlwapi.h>
+#include <ShlObj.h>
+#include <filesystem>
+
+
 #pragma comment(lib, "shell32.lib")
 bool button5_first = 0;
 bool button5_first_click = 0;
-
+char* save_path;
+char* last_saved_path;
+bool parameters_flag = true;
 namespace Example {
 
 	using namespace System;
@@ -26,7 +34,12 @@ namespace Example {
 	using namespace System::IO;
 	using namespace System::Media;
 	using namespace System::Globalization;
-
+	using namespace System::Reflection;
+	using namespace System::Collections::Generic;
+	using namespace Microsoft::Office::Interop::Excel;
+	namespace fs = std::filesystem;
+	using namespace System::Diagnostics;
+	using namespace Microsoft::Win32;
 	/// <summary>
 	/// Сводка для MyForm
 	/// </summary>
@@ -36,8 +49,22 @@ namespace Example {
 	private: System::Windows::Forms::ToolStripMenuItem^ darkModeToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripStatusLabel^ toolStripStatusLabel2;
 	private: System::Windows::Forms::ToolStripStatusLabel^ toolStripStatusLabel3;
-	private: System::Windows::Forms::Timer^ timer1;
+
 	private: System::ComponentModel::BackgroundWorker^ backgroundWorker1;
+
+	
+	private: System::Windows::Forms::ContextMenuStrip^ contextMenuStrip1;
+	private: System::Windows::Forms::ToolStripMenuItem^ toolStripMenuItem1;
+	private: System::Windows::Forms::ToolStripMenuItem^ deleteToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ openToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ refreshToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ exportToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ propetiesToolStripMenuItem;
+
+
+
+
+
 
 
 	public:
@@ -45,7 +72,7 @@ namespace Example {
 		MyForm(void)
 		{
 			InitializeComponent();
-			
+
 			//
 			//TODO: добавьте код конструктора
 			//
@@ -73,7 +100,6 @@ namespace Example {
 
 
 
-
 	private: System::Windows::Forms::OpenFileDialog^ openFileDialog1;
 
 	private: System::Windows::Forms::ToolStripMenuItem^ helpToolStripMenuItem;
@@ -96,8 +122,6 @@ namespace Example {
 
 
 
-	//private: System::DirectoryServices::DirectoryEntry^ directoryEntry1;
-
 	private: System::Windows::Forms::ToolTip^ toolTip1;
 
 
@@ -110,6 +134,255 @@ namespace Example {
 	private:
 
 	public:
+		void delete_selected_items() {
+			for (int i = 0; i < dataGridView1->SelectedCells->Count; i++) {
+				if (dataGridView1->SelectedCells[0]->ColumnIndex != 0)
+					return;
+				System::Object^ tmp = dataGridView1->SelectedCells[i]->Value;
+				struct stat s;
+				pin_ptr<const wchar_t> wname;
+				try {
+					wname = PtrToStringChars(textBox1->Text + "\\" + tmp);
+				}
+				catch (ArgumentOutOfRangeException^) {
+					return;
+				}
+				char Path[256];
+				sprintf(Path, "%ws", wname);
+				if (stat(Path, &s) == 0 && s.st_mode & S_IFDIR) {
+					try
+					{
+						fs::remove_all(Path); // удаление папки
+					}
+					catch (fs::filesystem_error const& e)
+					{
+					}
+				}
+				else {
+					std::remove(Path);
+				}
+			}
+		}
+		void export_selected_items(bool select_all) {
+			SaveFileDialog^ SaveFileDialog;
+			SaveFileDialog = gcnew System::Windows::Forms::SaveFileDialog;
+			SaveFileDialog->FileName = "Export_Table";
+			SaveFileDialog->DefaultExt = "xlsx";
+			SaveFileDialog->Filter = "Excel files (*.xlsx)|*.xlsx";
+			SaveFileDialog->FilterIndex = 1;
+			SaveFileDialog->CheckPathExists = true;
+			SaveFileDialog->AddExtension = false;
+			SaveFileDialog->OverwritePrompt = false;
+			System::Windows::Forms::DialogResult result = SaveFileDialog->ShowDialog();
+
+			String^ path = SaveFileDialog->FileName;
+
+			if (File::Exists(path))
+			{
+				int i = 1;
+				while (File::Exists(path))
+				{
+					path = SaveFileDialog->FileName->Substring(0, SaveFileDialog->FileName->LastIndexOf(".")) + "(" + i + ")" +
+						SaveFileDialog->FileName->Substring(SaveFileDialog->FileName->LastIndexOf("."));
+					i++;
+				}
+			}
+			SaveFileDialog->FileName = path;
+			if (result == System::Windows::Forms::DialogResult::OK) {
+				Microsoft::Office::Interop::Excel::Application^ app
+					= gcnew Microsoft::Office::Interop::Excel::ApplicationClass();
+				app->Visible = false;
+
+				Microsoft::Office::Interop::Excel::Workbook^ workbook
+					= app->Workbooks->Add(System::Type::Missing);
+				Microsoft::Office::Interop::Excel::Worksheet^ worksheet
+					= safe_cast<Microsoft::Office::Interop::Excel::Worksheet^>(app->ActiveSheet);
+				worksheet->Name = "List";
+				int col = 1;
+				int row = 1;
+				for each (DataGridViewColumn ^ column in dataGridView1->Columns) {
+					worksheet->Cells[row, col++] = column->HeaderText;
+				}
+				row++;
+				if(select_all==true)
+					for each (DataGridViewRow ^ datarow in dataGridView1->Rows) {
+						col = 1;
+						for each (DataGridViewCell ^ cell in datarow->Cells) {
+							worksheet->Cells[row, col++] = cell->Value;
+						}
+						row++;
+					}
+				else {
+					for each (DataGridViewCell ^ cell in dataGridView1->SelectedCells) {
+						if (cell->Value != nullptr)
+							worksheet->Cells[cell->RowIndex+2, cell->ColumnIndex+1] = cell->Value;
+					}
+				}
+				worksheet->Cells->EntireColumn->AutoFit();
+				workbook->SaveAs(SaveFileDialog->FileName,
+					System::Type::Missing, System::Type::Missing, System::Type::Missing, false, false,
+					Microsoft::Office::Interop::Excel::XlSaveAsAccessMode::xlShared,
+					false, false,
+					System::Type::Missing, System::Type::Missing, System::Type::Missing
+				);
+				workbook->Close(false, System::Type::Missing, System::Type::Missing);
+				System::Runtime::InteropServices::Marshal::ReleaseComObject(workbook);
+
+				app->Quit();
+			}
+		}
+		void refresh() {
+			toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
+			toolStripStatusLabel4->Text = "Ready";
+			if (textBox1->Text == "") {
+				MessageBox::Show("Путь к каталогу не выбран", "Информация",
+					MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+				return;
+			}
+			listBox2->Items->Clear();
+			dataGridView1->Rows->Clear();
+			if (parameters_flag) {
+				dataGridView1->Columns->Clear();
+				Add_Column_Headers();
+				parameters_flag = false;
+			}
+
+			WIN32_FIND_DATAW wfd;
+			pin_ptr<const wchar_t> wname = PtrToStringChars(textBox1->Text + "\\*");
+			HANDLE const hFind = FindFirstFileW(wname, &wfd);
+			setlocale(LC_ALL, "");
+			ULONGLONG Size = (static_cast<ULONGLONG>(wfd.nFileSizeHigh) <<
+				sizeof(wfd.nFileSizeLow) * 8) |
+				wfd.nFileSizeLow;
+			ULONGLONG s = (wfd.nFileSizeHigh * (uint64_t)MAXDWORD) + wfd.nFileSizeLow;
+			if (INVALID_HANDLE_VALUE != hFind && check_box[0] == true)
+			{
+				int i = 0;
+				DataGridViewRow^ r = gcnew DataGridViewRow();
+				array <String^>^ Values = gcnew array <String^>(dataGridView1->ColumnCount);
+				do
+				{
+					dataGridView1->Rows->Add(gcnew String(wfd.cFileName));
+					Size += (static_cast<ULONGLONG>(wfd.nFileSizeHigh) <<
+						sizeof(wfd.nFileSizeLow) * 8) |
+						wfd.nFileSizeLow;
+				} while (NULL != FindNextFileW(hFind, &wfd));
+
+				FindClose(hFind);
+			}
+			ListSortDirection direction = ListSortDirection::Ascending;
+			dataGridView1->Sort(dataGridView1->Columns[0], direction);
+			if (GridColor == Color::Silver)
+				for (int t = 0; t < dataGridView1->RowCount; t++)
+					dataGridView1->GridColor = GridColor;
+			ChangeMode();
+			dataGridView1->Visible = true;
+		}
+		void copy() {
+			List<String^>^ selectedCells = gcnew List<String^>();
+			int tmp = dataGridView1->ColumnCount;
+			int i = 0;
+			for each (DataGridViewCell ^ cell in dataGridView1->SelectedCells)
+			{
+				if (cell->Value != nullptr)
+				{
+					if (i == tmp) {
+						selectedCells->Add(cell->Value->ToString() + "\n");
+						i = 0;
+					}
+					else
+						selectedCells->Add(cell->Value->ToString() + "\t");
+				}
+				else
+				{
+					if (i == tmp) {
+						selectedCells->Add("\n");
+						i = 0;
+					}
+					else
+						selectedCells->Add("");
+				}
+				i++;
+			}
+			selectedCells->Reverse();
+			if (selectedCells->Count > 0)
+			{
+				String^ allCellsText = "";
+				for each (String ^ cellText in selectedCells)
+				{
+					allCellsText += cellText;
+				}
+				Clipboard::SetText(allCellsText->TrimEnd('\t'));
+
+				MessageBox::Show(allCellsText);
+			}
+		}
+		void Add_Column_Headers() {
+			int sum = 0;
+			for (int i = 0; i < 7; i++)
+				sum += check_box[i];
+			if (check_box[0] == true) {
+				if (sum > 1) {
+					dataGridView1->Columns->Add("FileName", "File Name");
+					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.35;
+					sum--;
+					if (check_box[1] == true) {
+						dataGridView1->Columns->Add("Size", "Size");
+						dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
+					}
+					if (check_box[2] == true) {
+						dataGridView1->Columns->Add("Attributes", "Attributes");
+						dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
+					}
+					if (check_box[3] == true) {
+						dataGridView1->Columns->Add("Streams", "Streams");
+						dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
+					}
+					if (check_box[4] == true) {
+						dataGridView1->Columns->Add("CreationTime", "Creation Time");
+						dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
+					}
+					if (check_box[5] == true) {
+						dataGridView1->Columns->Add("ModificationTime", "Modification Time");
+						dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
+					}
+					if (check_box[6] == true) {
+						dataGridView1->Columns->Add("AccessTime", "Access Time");
+						dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
+					}
+				}
+				else {
+					dataGridView1->Columns->Add("FileName", "File Name");
+					dataGridView1->Columns[0]->Width = dataGridView1->Width;
+				}
+			}
+			else {
+				if (check_box[1] == true) {
+					dataGridView1->Columns->Add("Size", "Size");
+					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width / sum;
+				}
+				if (check_box[2] == true) {
+					dataGridView1->Columns->Add("Attributes", "Attributes");
+					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width / sum;
+				}
+				if (check_box[3] == true) {
+					dataGridView1->Columns->Add("Streams", "Streams");
+					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width / sum;
+				}
+				if (check_box[4] == true) {
+					dataGridView1->Columns->Add("CreationTime", "Creation Time");
+					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width / sum;
+				}
+				if (check_box[5] == true) {
+					dataGridView1->Columns->Add("ModificationTime", "Modification Time");
+					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width / sum;
+				}
+				if (check_box[6] == true) {
+					dataGridView1->Columns->Add("AccessTime", "Access Time");
+					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width / sum;
+				}
+			}
+		}
 		void ChangeMode() {
 			if (darkModeToolStripMenuItem->CheckState == System::Windows::Forms::CheckState::Checked) {//тёмная тема
 				this->BackColor = Color::FromArgb(25, 25, 25);
@@ -120,7 +393,6 @@ namespace Example {
 				button5->ForeColor = Color::White;
 				button6->ForeColor = Color::White;
 				button7->ForeColor = Color::White;
-				checkBox1->ForeColor = Color::White;
 				button1->BackColor = Color::DimGray;
 				button2->BackColor = Color::DimGray;
 				button3->BackColor = Color::DimGray;
@@ -132,19 +404,19 @@ namespace Example {
 				textBox1->ForeColor = Color::White;
 				dataGridView1->BackgroundColor = Color::Silver;
 				for (int t = 0; t < dataGridView1->RowCount; t++)
-					for (int j = 0; j < 6; j++) {
+					for (int j = 0; j < dataGridView1->ColumnCount; j++) {
 						dataGridView1->Rows[t]->Cells[j]->Style->BackColor = Color::DimGray;
 						dataGridView1->Rows[t]->Cells[j]->Style->ForeColor = Color::White;
 					}
 				if (hightlightEvenRowsToolStripMenuItem->CheckState == System::Windows::Forms::CheckState::Checked) {
 					for (int t = 0; t < dataGridView1->RowCount; t++)
 						if (t % 2 == 0)
-							for (int j = 0; j < 6; j++)
+							for (int j = 0; j < dataGridView1->ColumnCount; j++)
 								dataGridView1->Rows[t]->Cells[j]->Style->BackColor = Color::Gray;
 				}
 				else
 					for (int t = 0; t < dataGridView1->RowCount; t++)
-						for (int j = 0; j < 6; j++)
+						for (int j = 0; j < dataGridView1->ColumnCount; j++)
 							dataGridView1->Rows[t]->Cells[j]->Style->BackColor = Color::DimGray;
 				if (showGridLinesToolStripMenuItem->CheckState == System::Windows::Forms::CheckState::Checked)
 					for (int t = 0; t < dataGridView1->RowCount; t++)
@@ -173,23 +445,22 @@ namespace Example {
 				button7->BackColor = Color::Silver;
 				textBox1->BackColor = SystemColors::Info;
 				textBox1->ForeColor = Color::Black;
-				checkBox1->ForeColor = Color::Black;
 				dataGridView1->ForeColor = Color::Black;
-				dataGridView1->BackgroundColor = System::Drawing::SystemColors::Info;
+				dataGridView1->BackgroundColor = Color::WhiteSmoke;
 				for (int t = 0; t < dataGridView1->RowCount; t++)
-					for (int j = 0; j < 6; j++) {
+					for (int j = 0; j < dataGridView1->ColumnCount; j++) {
 						dataGridView1->Rows[t]->Cells[j]->Style->BackColor = Color::White;
 						dataGridView1->Rows[t]->Cells[j]->Style->ForeColor = Color::Black;
 					}
 				if (hightlightEvenRowsToolStripMenuItem->CheckState == System::Windows::Forms::CheckState::Checked) {
 					for (int t = 0; t < dataGridView1->RowCount; t++)
 						if (t % 2 == 0)
-							for (int j = 0; j < 6; j++)
+							for (int j = 0; j < dataGridView1->ColumnCount; j++)
 								dataGridView1->Rows[t]->Cells[j]->Style->BackColor = Color::Bisque;
 				}
 				else
 					for (int t = 0; t < dataGridView1->RowCount; t++)
-						for (int j = 0; j < 6; j++)
+						for (int j = 0; j < dataGridView1->ColumnCount; j++)
 							dataGridView1->Rows[t]->Cells[j]->Style->BackColor = Color::White;
 				if (showGridLinesToolStripMenuItem->CheckState == System::Windows::Forms::CheckState::Checked)
 					for (int t = 0; t < dataGridView1->RowCount; t++)
@@ -197,79 +468,80 @@ namespace Example {
 				else
 					for (int t = 0; t < dataGridView1->RowCount; t++)
 						dataGridView1->GridColor = Color::White;
-				dataGridView1->DefaultCellStyle->SelectionBackColor = Color::White;
+				dataGridView1->DefaultCellStyle->SelectionBackColor = Color::LightGray;
+				dataGridView1->DefaultCellStyle->SelectionForeColor = Color::Black;
 				pictureBox1->Image = Image::FromFile("Images\\image_white.png");
 			}
 		}
 
 
-private: System::Windows::Forms::Button^ button1;
+	private: System::Windows::Forms::Button^ button1;
 
-private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel2;
-private: System::Windows::Forms::TextBox^ textBox1;
-System::String^ textBox1_saved;
-
-
-private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel1;
-private: System::Windows::Forms::Panel^ panel2;
-private: System::Windows::Forms::Button^ button2;
+	private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel2;
+	private: System::Windows::Forms::TextBox^ textBox1;
+		   System::String^ textBox1_saved;
 
 
-private: System::Windows::Forms::Button^ button5;
-private: System::Windows::Forms::Button^ button4;
+	private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel1;
+	private: System::Windows::Forms::Panel^ panel2;
+	private: System::Windows::Forms::Button^ button2;
+
+
+	private: System::Windows::Forms::Button^ button5;
+	private: System::Windows::Forms::Button^ button4;
 	private: System::Windows::Forms::Button^ button7;
 
 
-private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel3;
-private: System::Windows::Forms::TextBox^ textBox2;
-private: System::Windows::Forms::CheckBox^ checkBox1;
-private: System::Windows::Forms::ListBox^ listBox1;
 
 
-private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel4;
-private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel5;
-private: System::Windows::Forms::DataGridViewTextBoxColumn^ Column1;
-private: System::Windows::Forms::DataGridViewTextBoxColumn^ Column2;
-private: System::Windows::Forms::DataGridViewTextBoxColumn^ Column3;
-private: System::Windows::Forms::DataGridViewTextBoxColumn^ Column4;
-private: System::Windows::Forms::DataGridViewTextBoxColumn^ Column5;
-private: System::Windows::Forms::DataGridViewTextBoxColumn^ Column6;
-private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel6;
-private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel7;
 
 
-private: System::Windows::Forms::CheckBox^ checkBox2;
-private: System::Windows::Forms::CheckBox^ checkBox5;
 
-private: System::Windows::Forms::CheckBox^ checkBox4;
-private: System::Windows::Forms::CheckBox^ checkBox3;
-private: System::Windows::Forms::CheckBox^ checkBox6;
-private: System::Windows::Forms::FlowLayoutPanel^ flowLayoutPanel3;
-private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel8;
-private: System::Windows::Forms::FlowLayoutPanel^ flowLayoutPanel4;
-private: System::Windows::Forms::FlowLayoutPanel^ flowLayoutPanel1;
-private: System::Windows::Forms::CheckBox^ checkBox7;
-private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel9;
-private: System::DirectoryServices::DirectorySearcher^ directorySearcher1;
-private: System::Windows::Forms::FolderBrowserDialog^ folderBrowserDialog2;
-private: System::Windows::Forms::OpenFileDialog^ openFileDialog2;
-private: System::IO::FileSystemWatcher^ fileSystemWatcher1;
-private: System::Windows::Forms::Button^ button3;
-private: System::Windows::Forms::Button^ button6;
-private: System::Windows::Forms::ListBox^ listBox2;
-private: System::Windows::Forms::PictureBox^ pictureBox1;
-private: System::Windows::Forms::ToolStripMenuItem^ instrumentsToolStripMenuItem;
-private: System::Windows::Forms::ToolStripMenuItem^ runAsAdministratorToolStripMenuItem;
-private: System::Windows::Forms::ToolStripMenuItem^ findToolStripMenuItem;
-private: System::Windows::Forms::ToolStripMenuItem^ exportTableToolStripMenuItem;
-private: System::Windows::Forms::ToolStripMenuItem^ selectAllToolStripMenuItem;
-private: System::Windows::Forms::ToolStripMenuItem^ deselectAllToolStripMenuItem;
-private: System::Windows::Forms::ToolStripMenuItem^ showToolTipsToolStripMenuItem;
-private: System::Windows::Forms::ToolStripMenuItem^ showGridLinesToolStripMenuItem;
-private: System::Windows::Forms::ToolStripMenuItem^ exitToolStripMenuItem;
-private: System::Windows::Forms::ToolStripMenuItem^ hightlightEvenRowsToolStripMenuItem;
-private: System::Windows::Forms::ToolStripMenuItem^ exportSelectedItemsToolStripMenuItem;
-private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStripMenuItem;
+
+	private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel4;
+	private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel5;
+
+
+
+
+
+
+	private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel6;
+	private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel7;
+
+
+
+
+
+
+
+
+
+
+
+
+
+	private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel9;
+	private: System::DirectoryServices::DirectorySearcher^ directorySearcher1;
+	private: System::Windows::Forms::FolderBrowserDialog^ folderBrowserDialog2;
+	private: System::Windows::Forms::OpenFileDialog^ openFileDialog2;
+	private: System::IO::FileSystemWatcher^ fileSystemWatcher1;
+	private: System::Windows::Forms::Button^ button3;
+	private: System::Windows::Forms::Button^ button6;
+	private: System::Windows::Forms::ListBox^ listBox2;
+	private: System::Windows::Forms::PictureBox^ pictureBox1;
+	private: System::Windows::Forms::ToolStripMenuItem^ instrumentsToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ runAsAdministratorToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ findToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ exportTableToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ selectAllToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ deselectAllToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ showToolTipsToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ showGridLinesToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ exitToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ hightlightEvenRowsToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ exportSelectedItemsToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStripMenuItem;
 
 
 
@@ -325,22 +597,19 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 			this->infoToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
-			this->Column1 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
-			this->Column2 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
-			this->Column3 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
-			this->Column4 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
-			this->Column5 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
-			this->Column6 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->contextMenuStrip1 = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
+			this->toolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->deleteToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->openToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->refreshToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->exportToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->propetiesToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolTip1 = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->button1 = (gcnew System::Windows::Forms::Button());
 			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
 			this->button7 = (gcnew System::Windows::Forms::Button());
 			this->button4 = (gcnew System::Windows::Forms::Button());
 			this->button5 = (gcnew System::Windows::Forms::Button());
-			this->tableLayoutPanel3 = (gcnew System::Windows::Forms::TableLayoutPanel());
-			this->textBox2 = (gcnew System::Windows::Forms::TextBox());
-			this->checkBox1 = (gcnew System::Windows::Forms::CheckBox());
-			this->listBox1 = (gcnew System::Windows::Forms::ListBox());
 			this->button2 = (gcnew System::Windows::Forms::Button());
 			this->button3 = (gcnew System::Windows::Forms::Button());
 			this->button6 = (gcnew System::Windows::Forms::Button());
@@ -359,25 +628,14 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 			this->tableLayoutPanel7 = (gcnew System::Windows::Forms::TableLayoutPanel());
 			this->panel2 = (gcnew System::Windows::Forms::Panel());
 			this->tableLayoutPanel9 = (gcnew System::Windows::Forms::TableLayoutPanel());
-			this->tableLayoutPanel8 = (gcnew System::Windows::Forms::TableLayoutPanel());
-			this->flowLayoutPanel1 = (gcnew System::Windows::Forms::FlowLayoutPanel());
-			this->checkBox3 = (gcnew System::Windows::Forms::CheckBox());
-			this->checkBox7 = (gcnew System::Windows::Forms::CheckBox());
-			this->flowLayoutPanel4 = (gcnew System::Windows::Forms::FlowLayoutPanel());
-			this->checkBox6 = (gcnew System::Windows::Forms::CheckBox());
-			this->checkBox2 = (gcnew System::Windows::Forms::CheckBox());
-			this->flowLayoutPanel3 = (gcnew System::Windows::Forms::FlowLayoutPanel());
-			this->checkBox5 = (gcnew System::Windows::Forms::CheckBox());
-			this->checkBox4 = (gcnew System::Windows::Forms::CheckBox());
 			this->directorySearcher1 = (gcnew System::DirectoryServices::DirectorySearcher());
 			this->folderBrowserDialog2 = (gcnew System::Windows::Forms::FolderBrowserDialog());
 			this->openFileDialog2 = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->fileSystemWatcher1 = (gcnew System::IO::FileSystemWatcher());
-			this->timer1 = (gcnew System::Windows::Forms::Timer(this->components));
 			this->backgroundWorker1 = (gcnew System::ComponentModel::BackgroundWorker());
 			this->menuStrip1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView1))->BeginInit();
-			this->tableLayoutPanel3->SuspendLayout();
+			this->contextMenuStrip1->SuspendLayout();
 			this->statusStrip1->SuspendLayout();
 			this->tableLayoutPanel2->SuspendLayout();
 			this->tableLayoutPanel1->SuspendLayout();
@@ -388,10 +646,6 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 			this->tableLayoutPanel7->SuspendLayout();
 			this->panel2->SuspendLayout();
 			this->tableLayoutPanel9->SuspendLayout();
-			this->tableLayoutPanel8->SuspendLayout();
-			this->flowLayoutPanel1->SuspendLayout();
-			this->flowLayoutPanel4->SuspendLayout();
-			this->flowLayoutPanel3->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fileSystemWatcher1))->BeginInit();
 			this->SuspendLayout();
 			// 
@@ -449,12 +703,14 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 			this->selectAllToolStripMenuItem->Name = L"selectAllToolStripMenuItem";
 			this->selectAllToolStripMenuItem->Size = System::Drawing::Size(233, 26);
 			this->selectAllToolStripMenuItem->Text = L"Select All";
+			this->selectAllToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::selectAllToolStripMenuItem_Click);
 			// 
 			// deselectAllToolStripMenuItem
 			// 
 			this->deselectAllToolStripMenuItem->Name = L"deselectAllToolStripMenuItem";
 			this->deselectAllToolStripMenuItem->Size = System::Drawing::Size(233, 26);
 			this->deselectAllToolStripMenuItem->Text = L"Deselect All";
+			this->deselectAllToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::deselectAllToolStripMenuItem_Click);
 			// 
 			// showToolTipsToolStripMenuItem
 			// 
@@ -507,6 +763,7 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 			this->runAsAdministratorToolStripMenuItem->Name = L"runAsAdministratorToolStripMenuItem";
 			this->runAsAdministratorToolStripMenuItem->Size = System::Drawing::Size(237, 26);
 			this->runAsAdministratorToolStripMenuItem->Text = L"Run as Administrator";
+			this->runAsAdministratorToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::runAsAdministratorToolStripMenuItem_Click);
 			// 
 			// findToolStripMenuItem
 			// 
@@ -519,18 +776,21 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 			this->exportTableToolStripMenuItem->Name = L"exportTableToolStripMenuItem";
 			this->exportTableToolStripMenuItem->Size = System::Drawing::Size(237, 26);
 			this->exportTableToolStripMenuItem->Text = L"Export Table";
+			this->exportTableToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::exportTableToolStripMenuItem_Click);
 			// 
 			// exportSelectedItemsToolStripMenuItem
 			// 
 			this->exportSelectedItemsToolStripMenuItem->Name = L"exportSelectedItemsToolStripMenuItem";
 			this->exportSelectedItemsToolStripMenuItem->Size = System::Drawing::Size(237, 26);
 			this->exportSelectedItemsToolStripMenuItem->Text = L"Export Selected Items";
+			this->exportSelectedItemsToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::exportSelectedItemsToolStripMenuItem_Click);
 			// 
 			// deleteSelectedItemsToolStripMenuItem
 			// 
 			this->deleteSelectedItemsToolStripMenuItem->Name = L"deleteSelectedItemsToolStripMenuItem";
 			this->deleteSelectedItemsToolStripMenuItem->Size = System::Drawing::Size(237, 26);
 			this->deleteSelectedItemsToolStripMenuItem->Text = L"Delete Selected Items";
+			this->deleteSelectedItemsToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::deleteSelectedItemsToolStripMenuItem_Click);
 			// 
 			// helpToolStripMenuItem
 			// 
@@ -566,23 +826,20 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 			this->dataGridView1->AllowUserToDeleteRows = false;
 			dataGridViewCellStyle1->BackColor = System::Drawing::Color::White;
 			this->dataGridView1->AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
-			this->dataGridView1->BackgroundColor = System::Drawing::SystemColors::Info;
+			this->dataGridView1->BackgroundColor = System::Drawing::Color::WhiteSmoke;
 			this->dataGridView1->ColumnHeadersBorderStyle = System::Windows::Forms::DataGridViewHeaderBorderStyle::Single;
 			dataGridViewCellStyle2->Alignment = System::Windows::Forms::DataGridViewContentAlignment::TopLeft;
 			dataGridViewCellStyle2->BackColor = System::Drawing::Color::Silver;
-			dataGridViewCellStyle2->Font = (gcnew System::Drawing::Font(L"Impact", 7.8F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(0)));
+			dataGridViewCellStyle2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
 			dataGridViewCellStyle2->ForeColor = System::Drawing::SystemColors::WindowText;
 			dataGridViewCellStyle2->SelectionBackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(255)),
 				static_cast<System::Int32>(static_cast<System::Byte>(192)), static_cast<System::Int32>(static_cast<System::Byte>(128)));
-			dataGridViewCellStyle2->SelectionForeColor = System::Drawing::Color::White;
+			dataGridViewCellStyle2->SelectionForeColor = System::Drawing::Color::Gray;
 			dataGridViewCellStyle2->WrapMode = System::Windows::Forms::DataGridViewTriState::False;
 			this->dataGridView1->ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
 			this->dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
-			this->dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(6) {
-				this->Column1,
-					this->Column2, this->Column3, this->Column4, this->Column5, this->Column6
-			});
+			this->dataGridView1->ContextMenuStrip = this->contextMenuStrip1;
 			dataGridViewCellStyle3->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleLeft;
 			dataGridViewCellStyle3->BackColor = System::Drawing::Color::Black;
 			dataGridViewCellStyle3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
@@ -612,56 +869,68 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 			this->dataGridView1->RowHeadersWidth = 51;
 			dataGridViewCellStyle5->BackColor = System::Drawing::Color::White;
 			dataGridViewCellStyle5->ForeColor = System::Drawing::Color::Black;
-			dataGridViewCellStyle5->SelectionBackColor = System::Drawing::Color::White;
+			dataGridViewCellStyle5->SelectionBackColor = System::Drawing::Color::LightGray;
 			dataGridViewCellStyle5->SelectionForeColor = System::Drawing::Color::Black;
 			this->dataGridView1->RowsDefaultCellStyle = dataGridViewCellStyle5;
 			this->dataGridView1->RowTemplate->Height = 24;
+			this->dataGridView1->SelectionMode = System::Windows::Forms::DataGridViewSelectionMode::CellSelect;
 			this->dataGridView1->Size = System::Drawing::Size(1065, 401);
 			this->dataGridView1->TabIndex = 0;
 			this->dataGridView1->Visible = false;
 			this->dataGridView1->CellDoubleClick += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &MyForm::dataGridView1_CellDoubleClick);
+			this->dataGridView1->SizeChanged += gcnew System::EventHandler(this, &MyForm::dataGridView1_SizeChanged);
 			// 
-			// Column1
+			// contextMenuStrip1
 			// 
-			this->Column1->HeaderText = L"Filename";
-			this->Column1->MinimumWidth = 6;
-			this->Column1->Name = L"Column1";
-			this->Column1->Width = 405;
+			this->contextMenuStrip1->ImageScalingSize = System::Drawing::Size(20, 20);
+			this->contextMenuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(6) {
+				this->toolStripMenuItem1,
+					this->deleteToolStripMenuItem, this->openToolStripMenuItem, this->refreshToolStripMenuItem, this->exportToolStripMenuItem, this->propetiesToolStripMenuItem
+			});
+			this->contextMenuStrip1->Name = L"contextMenuStrip1";
+			this->contextMenuStrip1->Size = System::Drawing::Size(141, 148);
 			// 
-			// Column2
+			// toolStripMenuItem1
 			// 
-			this->Column2->HeaderText = L"Stream Name";
-			this->Column2->MinimumWidth = 6;
-			this->Column2->Name = L"Column2";
-			this->Column2->Width = 175;
+			this->toolStripMenuItem1->Name = L"toolStripMenuItem1";
+			this->toolStripMenuItem1->Size = System::Drawing::Size(140, 24);
+			this->toolStripMenuItem1->Text = L"Copy";
+			this->toolStripMenuItem1->Click += gcnew System::EventHandler(this, &MyForm::toolStripMenuItem1_Click);
 			// 
-			// Column3
+			// deleteToolStripMenuItem
 			// 
-			this->Column3->HeaderText = L"Stream Type";
-			this->Column3->MinimumWidth = 6;
-			this->Column3->Name = L"Column3";
-			this->Column3->Width = 175;
+			this->deleteToolStripMenuItem->Name = L"deleteToolStripMenuItem";
+			this->deleteToolStripMenuItem->Size = System::Drawing::Size(140, 24);
+			this->deleteToolStripMenuItem->Text = L"Delete";
+			this->deleteToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::deleteToolStripMenuItem_Click);
 			// 
-			// Column4
+			// openToolStripMenuItem
 			// 
-			this->Column4->HeaderText = L"Content Type";
-			this->Column4->MinimumWidth = 6;
-			this->Column4->Name = L"Column4";
-			this->Column4->Width = 175;
+			this->openToolStripMenuItem->Name = L"openToolStripMenuItem";
+			this->openToolStripMenuItem->Size = System::Drawing::Size(140, 24);
+			this->openToolStripMenuItem->Text = L"Open";
+			this->openToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::openToolStripMenuItem_Click);
 			// 
-			// Column5
+			// refreshToolStripMenuItem
 			// 
-			this->Column5->HeaderText = L"Base Type";
-			this->Column5->MinimumWidth = 6;
-			this->Column5->Name = L"Column5";
-			this->Column5->Width = 175;
+			this->refreshToolStripMenuItem->Name = L"refreshToolStripMenuItem";
+			this->refreshToolStripMenuItem->Size = System::Drawing::Size(140, 24);
+			this->refreshToolStripMenuItem->Text = L"Refresh";
+			this->refreshToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::refreshToolStripMenuItem_Click);
 			// 
-			// Column6
+			// exportToolStripMenuItem
 			// 
-			this->Column6->HeaderText = L"Size";
-			this->Column6->MinimumWidth = 6;
-			this->Column6->Name = L"Column6";
-			this->Column6->Width = 175;
+			this->exportToolStripMenuItem->Name = L"exportToolStripMenuItem";
+			this->exportToolStripMenuItem->Size = System::Drawing::Size(140, 24);
+			this->exportToolStripMenuItem->Text = L"Export";
+			this->exportToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::exportToolStripMenuItem_Click);
+			// 
+			// propetiesToolStripMenuItem
+			// 
+			this->propetiesToolStripMenuItem->Name = L"propetiesToolStripMenuItem";
+			this->propetiesToolStripMenuItem->Size = System::Drawing::Size(140, 24);
+			this->propetiesToolStripMenuItem->Text = L"Propeties";
+			this->propetiesToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::propetiesToolStripMenuItem_Click);
 			// 
 			// button1
 			// 
@@ -699,6 +968,7 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 			// 
 			this->button7->AutoSize = true;
 			this->button7->BackColor = System::Drawing::Color::Silver;
+			this->button7->Enabled = false;
 			this->button7->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
 			this->button7->ForeColor = System::Drawing::SystemColors::ActiveCaptionText;
@@ -707,7 +977,7 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 			this->button7->Name = L"button7";
 			this->button7->Size = System::Drawing::Size(160, 28);
 			this->button7->TabIndex = 0;
-			this->button7->Text = L"   Start";
+			this->button7->Text = L"   Compare";
 			this->toolTip1->SetToolTip(this->button7, L"Start comparasing");
 			this->button7->UseVisualStyleBackColor = false;
 			this->button7->Click += gcnew System::EventHandler(this, &MyForm::button7_Click);
@@ -744,74 +1014,6 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 			this->button5->UseVisualStyleBackColor = false;
 			this->button5->Click += gcnew System::EventHandler(this, &MyForm::button5_Click);
 			// 
-			// tableLayoutPanel3
-			// 
-			this->tableLayoutPanel3->AutoSize = true;
-			this->tableLayoutPanel3->ColumnCount = 2;
-			this->tableLayoutPanel3->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent,
-				46.33508F)));
-			this->tableLayoutPanel3->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent,
-				53.66492F)));
-			this->tableLayoutPanel3->Controls->Add(this->textBox2, 1, 1);
-			this->tableLayoutPanel3->Controls->Add(this->checkBox1, 0, 1);
-			this->tableLayoutPanel3->Controls->Add(this->listBox1, 0, 2);
-			this->tableLayoutPanel3->Location = System::Drawing::Point(3, 3);
-			this->tableLayoutPanel3->Name = L"tableLayoutPanel3";
-			this->tableLayoutPanel3->RowCount = 3;
-			this->tableLayoutPanel3->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 10.85271F)));
-			this->tableLayoutPanel3->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 22.48062F)));
-			this->tableLayoutPanel3->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 64.84375F)));
-			this->tableLayoutPanel3->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
-			this->tableLayoutPanel3->Size = System::Drawing::Size(77, 131);
-			this->tableLayoutPanel3->TabIndex = 3;
-			this->toolTip1->SetToolTip(this->tableLayoutPanel3, L"Enter the depth");
-			// 
-			// textBox2
-			// 
-			this->textBox2->BackColor = System::Drawing::SystemColors::Info;
-			this->textBox2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->textBox2->Location = System::Drawing::Point(38, 17);
-			this->textBox2->Name = L"textBox2";
-			this->textBox2->Size = System::Drawing::Size(34, 24);
-			this->textBox2->TabIndex = 0;
-			this->textBox2->Visible = false;
-			this->textBox2->TextChanged += gcnew System::EventHandler(this, &MyForm::textBox2_TextChanged);
-			// 
-			// checkBox1
-			// 
-			this->checkBox1->AutoSize = true;
-			this->checkBox1->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->checkBox1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->checkBox1->Location = System::Drawing::Point(3, 17);
-			this->checkBox1->MaximumSize = System::Drawing::Size(200, 40);
-			this->checkBox1->Name = L"checkBox1";
-			this->checkBox1->Size = System::Drawing::Size(29, 23);
-			this->checkBox1->TabIndex = 8;
-			this->checkBox1->Text = L"Scan Sub Directories";
-			this->checkBox1->UseVisualStyleBackColor = true;
-			this->checkBox1->Visible = false;
-			this->checkBox1->CheckedChanged += gcnew System::EventHandler(this, &MyForm::checkBox1_CheckedChanged);
-			// 
-			// listBox1
-			// 
-			this->listBox1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->listBox1->FormattingEnabled = true;
-			this->listBox1->ItemHeight = 18;
-			this->listBox1->Items->AddRange(gcnew cli::array< System::Object^  >(10) {
-				L"1", L"2", L"3", L"4", L"5", L"6", L"7", L"8",
-					L"9", L"10"
-			});
-			this->listBox1->Location = System::Drawing::Point(3, 46);
-			this->listBox1->Name = L"listBox1";
-			this->listBox1->Size = System::Drawing::Size(28, 58);
-			this->listBox1->TabIndex = 9;
-			this->toolTip1->SetToolTip(this->listBox1, L"Enter the depth");
-			this->listBox1->Visible = false;
-			this->listBox1->SelectedIndexChanged += gcnew System::EventHandler(this, &MyForm::listBox1_SelectedIndexChanged);
-			// 
 			// button2
 			// 
 			this->button2->AutoSize = true;
@@ -834,6 +1036,7 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 			this->button3->AutoSize = true;
 			this->button3->BackColor = System::Drawing::Color::Silver;
 			this->button3->Dock = System::Windows::Forms::DockStyle::Fill;
+			this->button3->Enabled = false;
 			this->button3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
 			this->button3->ImageAlign = System::Drawing::ContentAlignment::MiddleLeft;
@@ -897,7 +1100,6 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 			// 
 			// toolStripStatusLabel3
 			// 
-			this->toolStripStatusLabel3->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"toolStripStatusLabel3.BackgroundImage")));
 			this->toolStripStatusLabel3->Name = L"toolStripStatusLabel3";
 			this->toolStripStatusLabel3->Size = System::Drawing::Size(0, 20);
 			// 
@@ -998,7 +1200,6 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 				6.633499F)));
 			this->tableLayoutPanel5->Controls->Add(this->dataGridView1, 1, 0);
 			this->tableLayoutPanel5->Controls->Add(this->listBox2, 2, 0);
-			this->tableLayoutPanel5->Controls->Add(this->tableLayoutPanel3, 0, 0);
 			this->tableLayoutPanel5->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->tableLayoutPanel5->Location = System::Drawing::Point(3, 115);
 			this->tableLayoutPanel5->Name = L"tableLayoutPanel5";
@@ -1023,13 +1224,12 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 			// 
 			this->tableLayoutPanel7->ColumnCount = 3;
 			this->tableLayoutPanel7->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent,
-				7.85124F)));
+				10.67961F)));
 			this->tableLayoutPanel7->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent,
-				92.14876F)));
+				89.32039F)));
 			this->tableLayoutPanel7->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Absolute,
-				372)));
+				505)));
 			this->tableLayoutPanel7->Controls->Add(this->panel2, 1, 0);
-			this->tableLayoutPanel7->Controls->Add(this->tableLayoutPanel8, 2, 0);
 			this->tableLayoutPanel7->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->tableLayoutPanel7->Location = System::Drawing::Point(3, 528);
 			this->tableLayoutPanel7->Name = L"tableLayoutPanel7";
@@ -1040,13 +1240,14 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 			// 
 			// panel2
 			// 
+			this->panel2->AutoSize = true;
 			this->panel2->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
 			this->panel2->Controls->Add(this->tableLayoutPanel9);
 			this->panel2->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->panel2->Location = System::Drawing::Point(70, 3);
+			this->panel2->Location = System::Drawing::Point(81, 3);
 			this->panel2->MaximumSize = System::Drawing::Size(1000, 150);
 			this->panel2->Name = L"panel2";
-			this->panel2->Size = System::Drawing::Size(791, 68);
+			this->panel2->Size = System::Drawing::Size(647, 68);
 			this->panel2->TabIndex = 17;
 			// 
 			// tableLayoutPanel9
@@ -1067,134 +1268,6 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 			this->tableLayoutPanel9->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 100)));
 			this->tableLayoutPanel9->Size = System::Drawing::Size(644, 34);
 			this->tableLayoutPanel9->TabIndex = 22;
-			// 
-			// tableLayoutPanel8
-			// 
-			this->tableLayoutPanel8->AutoSize = true;
-			this->tableLayoutPanel8->ColumnCount = 3;
-			this->tableLayoutPanel8->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent,
-				19.95661F)));
-			this->tableLayoutPanel8->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent,
-				32.07171F)));
-			this->tableLayoutPanel8->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent,
-				48.20717F)));
-			this->tableLayoutPanel8->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Absolute,
-				20)));
-			this->tableLayoutPanel8->Controls->Add(this->flowLayoutPanel1, 2, 0);
-			this->tableLayoutPanel8->Controls->Add(this->flowLayoutPanel4, 0, 0);
-			this->tableLayoutPanel8->Controls->Add(this->flowLayoutPanel3, 1, 0);
-			this->tableLayoutPanel8->Location = System::Drawing::Point(867, 3);
-			this->tableLayoutPanel8->Name = L"tableLayoutPanel8";
-			this->tableLayoutPanel8->RowCount = 1;
-			this->tableLayoutPanel8->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 100)));
-			this->tableLayoutPanel8->Size = System::Drawing::Size(367, 62);
-			this->tableLayoutPanel8->TabIndex = 21;
-			this->tableLayoutPanel8->Visible = false;
-			// 
-			// flowLayoutPanel1
-			// 
-			this->flowLayoutPanel1->AutoSize = true;
-			this->flowLayoutPanel1->Controls->Add(this->checkBox3);
-			this->flowLayoutPanel1->Controls->Add(this->checkBox7);
-			this->flowLayoutPanel1->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->flowLayoutPanel1->Location = System::Drawing::Point(193, 3);
-			this->flowLayoutPanel1->Name = L"flowLayoutPanel1";
-			this->flowLayoutPanel1->Size = System::Drawing::Size(171, 56);
-			this->flowLayoutPanel1->TabIndex = 23;
-			// 
-			// checkBox3
-			// 
-			this->checkBox3->AutoSize = true;
-			this->checkBox3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->checkBox3->Location = System::Drawing::Point(3, 3);
-			this->checkBox3->Name = L"checkBox3";
-			this->checkBox3->Size = System::Drawing::Size(177, 22);
-			this->checkBox3->TabIndex = 1;
-			this->checkBox3->Text = L"Время модификации";
-			this->checkBox3->UseVisualStyleBackColor = true;
-			// 
-			// checkBox7
-			// 
-			this->checkBox7->AutoSize = true;
-			this->checkBox7->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->checkBox7->Location = System::Drawing::Point(3, 31);
-			this->checkBox7->Name = L"checkBox7";
-			this->checkBox7->Size = System::Drawing::Size(211, 22);
-			this->checkBox7->TabIndex = 22;
-			this->checkBox7->Text = L"Время изменения статуса";
-			this->checkBox7->UseVisualStyleBackColor = true;
-			// 
-			// flowLayoutPanel4
-			// 
-			this->flowLayoutPanel4->AutoSize = true;
-			this->flowLayoutPanel4->Controls->Add(this->checkBox6);
-			this->flowLayoutPanel4->Controls->Add(this->checkBox2);
-			this->flowLayoutPanel4->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->flowLayoutPanel4->Location = System::Drawing::Point(3, 3);
-			this->flowLayoutPanel4->Name = L"flowLayoutPanel4";
-			this->flowLayoutPanel4->Size = System::Drawing::Size(67, 56);
-			this->flowLayoutPanel4->TabIndex = 20;
-			// 
-			// checkBox6
-			// 
-			this->checkBox6->AutoSize = true;
-			this->checkBox6->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->checkBox6->Location = System::Drawing::Point(3, 3);
-			this->checkBox6->Name = L"checkBox6";
-			this->checkBox6->Size = System::Drawing::Size(60, 22);
-			this->checkBox6->TabIndex = 19;
-			this->checkBox6->Text = L"Имя";
-			this->checkBox6->UseVisualStyleBackColor = true;
-			// 
-			// checkBox2
-			// 
-			this->checkBox2->AutoSize = true;
-			this->checkBox2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->checkBox2->Location = System::Drawing::Point(3, 31);
-			this->checkBox2->Name = L"checkBox2";
-			this->checkBox2->Size = System::Drawing::Size(83, 22);
-			this->checkBox2->TabIndex = 0;
-			this->checkBox2->Text = L"Размер";
-			this->checkBox2->UseVisualStyleBackColor = true;
-			// 
-			// flowLayoutPanel3
-			// 
-			this->flowLayoutPanel3->AutoSize = true;
-			this->flowLayoutPanel3->Controls->Add(this->checkBox5);
-			this->flowLayoutPanel3->Controls->Add(this->checkBox4);
-			this->flowLayoutPanel3->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->flowLayoutPanel3->Location = System::Drawing::Point(76, 3);
-			this->flowLayoutPanel3->Name = L"flowLayoutPanel3";
-			this->flowLayoutPanel3->Size = System::Drawing::Size(111, 56);
-			this->flowLayoutPanel3->TabIndex = 18;
-			// 
-			// checkBox5
-			// 
-			this->checkBox5->AutoSize = true;
-			this->checkBox5->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->checkBox5->Location = System::Drawing::Point(3, 3);
-			this->checkBox5->Name = L"checkBox5";
-			this->checkBox5->Size = System::Drawing::Size(133, 22);
-			this->checkBox5->TabIndex = 3;
-			this->checkBox5->Text = L"Права доступа";
-			this->checkBox5->UseVisualStyleBackColor = true;
-			// 
-			// checkBox4
-			// 
-			this->checkBox4->AutoSize = true;
-			this->checkBox4->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->checkBox4->Location = System::Drawing::Point(3, 31);
-			this->checkBox4->Name = L"checkBox4";
-			this->checkBox4->Size = System::Drawing::Size(156, 22);
-			this->checkBox4->TabIndex = 2;
-			this->checkBox4->Text = L"Время обращения";
-			this->checkBox4->UseVisualStyleBackColor = true;
 			// 
 			// directorySearcher1
 			// 
@@ -1239,8 +1312,7 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 			this->menuStrip1->ResumeLayout(false);
 			this->menuStrip1->PerformLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView1))->EndInit();
-			this->tableLayoutPanel3->ResumeLayout(false);
-			this->tableLayoutPanel3->PerformLayout();
+			this->contextMenuStrip1->ResumeLayout(false);
 			this->statusStrip1->ResumeLayout(false);
 			this->statusStrip1->PerformLayout();
 			this->tableLayoutPanel2->ResumeLayout(false);
@@ -1252,21 +1324,12 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 			this->tableLayoutPanel6->PerformLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
 			this->tableLayoutPanel5->ResumeLayout(false);
-			this->tableLayoutPanel5->PerformLayout();
 			this->tableLayoutPanel7->ResumeLayout(false);
 			this->tableLayoutPanel7->PerformLayout();
 			this->panel2->ResumeLayout(false);
 			this->panel2->PerformLayout();
 			this->tableLayoutPanel9->ResumeLayout(false);
 			this->tableLayoutPanel9->PerformLayout();
-			this->tableLayoutPanel8->ResumeLayout(false);
-			this->tableLayoutPanel8->PerformLayout();
-			this->flowLayoutPanel1->ResumeLayout(false);
-			this->flowLayoutPanel1->PerformLayout();
-			this->flowLayoutPanel4->ResumeLayout(false);
-			this->flowLayoutPanel4->PerformLayout();
-			this->flowLayoutPanel3->ResumeLayout(false);
-			this->flowLayoutPanel3->PerformLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fileSystemWatcher1))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
@@ -1274,6 +1337,7 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 		}
 #pragma endregion
 	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
+
 		toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
 		toolStripStatusLabel4->Text = "Ready";
 		listBox2->Items->Clear();
@@ -1288,13 +1352,18 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 				MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
 			return;
 		}
-		dataGridView1->Visible = true;
+
 		WIN32_FIND_DATAW wfd;
 		pin_ptr<const wchar_t> wname = PtrToStringChars(textBox1->Text + "\\*");
 		HANDLE const hFind = FindFirstFileW(wname, &wfd);
 		setlocale(LC_ALL, "");
 		dataGridView1->Rows->Clear();
-		if (INVALID_HANDLE_VALUE != hFind)
+		if (parameters_flag) {
+			dataGridView1->Columns->Clear();
+			Add_Column_Headers();
+			parameters_flag = false;
+		}
+		if (INVALID_HANDLE_VALUE != hFind && check_box[0] == true)
 		{
 			int i = 0;
 			DataGridViewRow^ r = gcnew DataGridViewRow();
@@ -1303,14 +1372,16 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 			{
 				dataGridView1->Rows->Add(gcnew String(wfd.cFileName));
 			} while (NULL != FindNextFileW(hFind, &wfd));
-
 			FindClose(hFind);
 		}
 		ListSortDirection direction = ListSortDirection::Ascending;
 		dataGridView1->Sort(dataGridView1->Columns[0], direction);
-		
 		this->fileSystemWatcher1->Path = textBox1->Text;
 		ChangeMode();
+		dataGridView1->Visible = true;
+		dataGridView1->ClearSelection();
+		button7->Enabled = true;
+		
 	}
 	private: System::Void закрытьToolStripMenuItem_Click_1(System::Object^ sender, System::EventArgs^ e) {
 		exit(0);
@@ -1323,264 +1394,209 @@ private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStrip
 		MessageBox::Show("Данное приложение разработано в рамках проекта по ОПД в 2023", "О программе",
 			MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
 	}
-	private: System::Void listBox1_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e) {
-		System::Object^ depth=listBox1->SelectedItem;
-		textBox2->Text= "Depth: "+depth->ToString();
-		textBox2->Visible = true;
-		listBox1->Visible = false;
-	}
-private: System::Void checkBox1_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
-	if (checkBox1->Checked) {
-		listBox1->Visible = true;
-	}
-	else {
-		listBox1->Visible = false;
-		textBox2->Visible = false;
-	}
-}
-private: System::Void textBox2_TextChanged(System::Object^ sender, System::EventArgs^ e) {
-	listBox1->Visible = false;
-}
-private: System::Void button4_Click(System::Object^ sender, System::EventArgs^ e) {
-	toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
-	toolStripStatusLabel4->Text = "Ready";
-	OpenFileDialog^ openFileDialog1 = gcnew OpenFileDialog();
-	openFileDialog1->Filter = "All files (*.*)|*.*";
-	wchar_t Folder[1024];
-	HRESULT hr = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, Folder);
-	if (SUCCEEDED(hr))
-	{
-		char str[1024];
-		wcstombs(str, Folder, 1023);
-	}
-	char tmp[17] = "\\FolderWatcher";
-	int Folder_len = 0;
-	System::String^ new_path;
-	for (int i = 0; Folder[i] != '\0'; i++)
-	{
-		new_path += Folder[i];
-		Folder_len++;
-	}
-	for (int i = 0; i < 17; i++) {
-		new_path += wchar_t(tmp[i]);
-	}
-	openFileDialog1->InitialDirectory = new_path;
-	openFileDialog1->ShowDialog();
-	String^ fileName = openFileDialog1->FileName;
-}
-private: System::Void button5_Click(System::Object^ sender, System::EventArgs^ e) {
-	toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
-	toolStripStatusLabel4->Text = "Ready";
-	New::Parameters^ f = gcnew New::Parameters();
-	f->ShowDialog();
-	if (button5_first_click == 0) {
-		checkBox6->Checked = true;
-		checkBox2->Checked = true;
-		checkBox5->Checked = true;
-		checkBox4->Checked = true;
-		checkBox3->Checked = true;
-		checkBox7->Checked = true;
-		button5_first_click = 1;
-	}
-	if (button5_first == 0) {
-		tableLayoutPanel8->Visible = true;
-		button5_first = 1;
-	}
-	else {
-		tableLayoutPanel8->Visible = false;
-		button5_first = 0;
-	}
-}
-private: System::Void fileSystemWatcher1_Created_1(System::Object^ sender, System::IO::FileSystemEventArgs^ e) {
-	ChangeMode();
-	WIN32_FIND_DATAW wfd;
-	pin_ptr<const wchar_t> wname = PtrToStringChars(textBox1->Text + "\\*");
-	HANDLE const hFind = FindFirstFileW(wname, &wfd);
-	setlocale(LC_ALL, "");
-	if (INVALID_HANDLE_VALUE != hFind)
-	{
-		int i = 0;
-		DataGridViewRow^ r = gcnew DataGridViewRow();
-		array <String^>^ Values = gcnew array <String^>(dataGridView1->ColumnCount);
-		do
-		{
-			
-			if (e->Name == gcnew String(wfd.cFileName)) {
-				dataGridView1->Rows->Add(gcnew String(wfd.cFileName));
-				ListSortDirection direction = ListSortDirection::Ascending;
-				dataGridView1->Sort(dataGridView1->Columns[0], direction);
-				for (int j = 0; j < 6; j++)
-					dataGridView1->Rows[i]->Cells[j]->Style->BackColor = Color::LightCoral;
-				SYSTEMTIME stUTC, stLocal;
-				FileTimeToSystemTime(&wfd.ftCreationTime, &stUTC);
-				SystemTimeToTzSpecificLocalTime(NULL, &stUTC, &stLocal);
-
-				char buffer[80];
-				sprintf_s(buffer, 80, "%04d-%02d-%02d %02d:%02d:%02d",
-					stLocal.wYear, stLocal.wMonth, stLocal.wDay,
-					stLocal.wHour, stLocal.wMinute, stLocal.wSecond);
-
-				System::String^ result = gcnew String(buffer);
-				System::String^ log = "Created | " + result + " | " + e->FullPath->ToString();
-				listBox2->Items->Add(log);
+	private: System::Void button4_Click(System::Object^ sender, System::EventArgs^ e) {
+		toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
+		toolStripStatusLabel4->Text = "Ready";
+		OpenFileDialog^ openFileDialog1 = gcnew OpenFileDialog();
+		openFileDialog1->Filter = "All files (*.*)|*.*";
+		std::string path;
+		if (last_saved_path == NULL) {
+			wchar_t Folder[1024];
+			HRESULT hr = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, Folder);
+			if (SUCCEEDED(hr))
+			{
+				char str[1024];
+				wcstombs(str, Folder, 1023);
 			}
-			i++;
-		} while (NULL != FindNextFileW(hFind, &wfd));
-		FindClose(hFind);
-		toolStripStatusLabel4->Text = "Completed";
-
-	}
-}
-private: System::Void fileSystemWatcher1_Deleted_1(System::Object^ sender, System::IO::FileSystemEventArgs^ e) {
-	for (int t = 0; t < dataGridView1->RowCount; t++) {
-		if (dataGridView1->Rows[t]->Cells[0]->Value->ToString() == e->Name) {
-			dataGridView1->Rows->RemoveAt(dataGridView1->Rows[t]->Index);
+			char tmp[17] = "\\FolderWatcher";
+			int Folder_len = 0;
+			for (int i = 0; Folder[i] != '\0'; i++)
+			{
+				path += Folder[i];
+				Folder_len++;
+			}
+			for (int i = 0; i < 17; i++) {
+				path += wchar_t(tmp[i]);
+			}
 		}
+		else {
+			int len = strlen(last_saved_path);
+			for (int i = 0; i < len; i++) {
+				path += wchar_t(last_saved_path[i]);
+			}
+			path = path.substr(0, path.find_last_of("\\"));
+		}
+		System::String^ new_path = msclr::interop::marshal_as<System::String^>(path);
+		openFileDialog1->InitialDirectory = new_path;
+		openFileDialog1->ShowDialog();
+		String^ fileName = openFileDialog1->FileName;
 	}
-	WIN32_FIND_DATAW wfd;
-	pin_ptr<const wchar_t> wname = PtrToStringChars(e->FullPath);
-	HANDLE const hFind = FindFirstFileW(wname, &wfd);
-	SYSTEMTIME stUTC, stLocal;
-	FileTimeToSystemTime(&wfd.ftCreationTime, &stUTC);
-	SystemTimeToTzSpecificLocalTime(NULL, &stUTC, &stLocal);
-
-	char buffer[80];
-	sprintf_s(buffer, 80, "%04d-%02d-%02d %02d:%02d:%02d",
-		stLocal.wYear, stLocal.wMonth, stLocal.wDay,
-		stLocal.wHour, stLocal.wMinute, stLocal.wSecond);
-	DateTime currentTime = DateTime::Now;
-	String^ currentTimeStr = currentTime.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo::InvariantCulture);
-	System::String^ result = gcnew String(buffer);
-	System::String^ log = "Deleted | " + currentTimeStr + " | " + e->FullPath->ToString();
-	listBox2->Items->Add(log);
-	ChangeMode();
-}
-private: System::Void fileSystemWatcher1_Renamed_1(System::Object^ sender, RenamedEventArgs^ e) {
-	ChangeMode();
-	WIN32_FIND_DATAW wfd;
-	pin_ptr<const wchar_t> wname = PtrToStringChars(textBox1->Text + "\\*");
-	HANDLE const hFind = FindFirstFileW(wname, &wfd);
-	setlocale(LC_ALL, "");
-	if (INVALID_HANDLE_VALUE != hFind)
-	{
-		int i = 0;
-		DataGridViewRow^ r = gcnew DataGridViewRow();
-		array <String^>^ Values = gcnew array <String^>(dataGridView1->ColumnCount);
-		int count_hiden = 0,neccesary_row;
-		do
+	private: System::Void button5_Click(System::Object^ sender, System::EventArgs^ e) {
+		toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
+		toolStripStatusLabel4->Text = "Ready";
+		New::Parameters^ f = gcnew New::Parameters(gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
+		f->ShowDialog();
+		parameters_flag = true;
+	}
+	private: System::Void fileSystemWatcher1_Created_1(System::Object^ sender, System::IO::FileSystemEventArgs^ e) {
+		ChangeMode();
+		WIN32_FIND_DATAW wfd;
+		pin_ptr<const wchar_t> wname = PtrToStringChars(textBox1->Text + "\\*");
+		HANDLE const hFind = FindFirstFileW(wname, &wfd);
+		setlocale(LC_ALL, "");
+		if (INVALID_HANDLE_VALUE != hFind)
 		{
-			if (e->Name == gcnew String(wfd.cFileName)) {
-				neccesary_row = i;
-				dataGridView1->Rows[i]->Cells[0]->Value = e->Name;
-				ListSortDirection direction = ListSortDirection::Ascending;
-				dataGridView1->Sort(dataGridView1->Columns[0], direction);
-				for (int t = 0; t < dataGridView1->RowCount; t++) {
-					if (dataGridView1->Rows[t]->Cells[0]->Value == e->Name) {
-						for (int j = 0; j < 6; j++)
-							dataGridView1->Rows[t]->Cells[j]->Style->BackColor = Color::LightCoral;
-					}
-					if (dataGridView1->Rows[t]->Cells[0]->Value->ToString() == e->OldName) {
-						dataGridView1->Rows->RemoveAt(dataGridView1->Rows[t]->Index);
-					}
+			int i = 0;
+			DataGridViewRow^ r = gcnew DataGridViewRow();
+			array <String^>^ Values = gcnew array <String^>(dataGridView1->ColumnCount);
+			do
+			{
+
+				if (e->Name == gcnew String(wfd.cFileName)) {
+					dataGridView1->Rows->Add(gcnew String(wfd.cFileName));
+					ListSortDirection direction = ListSortDirection::Ascending;
+					dataGridView1->Sort(dataGridView1->Columns[0], direction);
+					for (int j = 0; j < dataGridView1->ColumnCount; j++)
+						dataGridView1->Rows[i]->Cells[j]->Style->BackColor = Color::LightCoral;
+					SYSTEMTIME stUTC, stLocal;
+					FileTimeToSystemTime(&wfd.ftCreationTime, &stUTC);
+					SystemTimeToTzSpecificLocalTime(NULL, &stUTC, &stLocal);
+
+					char buffer[80];
+					sprintf_s(buffer, 80, "%04d-%02d-%02d %02d:%02d:%02d",
+						stLocal.wYear, stLocal.wMonth, stLocal.wDay,
+						stLocal.wHour, stLocal.wMinute, stLocal.wSecond);
+
+					System::String^ result = gcnew String(buffer);
+					System::String^ log = "Created | " + result + " | " + e->FullPath->ToString();
+					listBox2->Items->Add(log);
 				}
-				SYSTEMTIME stUTC, stLocal;
-				FileTimeToSystemTime(&wfd.ftCreationTime, &stUTC);
-				SystemTimeToTzSpecificLocalTime(NULL, &stUTC, &stLocal);
+				i++;
+			} while (NULL != FindNextFileW(hFind, &wfd));
+			FindClose(hFind);
+			toolStripStatusLabel4->Text = "Completed";
 
-				char buffer[80];
-				sprintf_s(buffer, 80, "%04d-%02d-%02d %02d:%02d:%02d",
-					stLocal.wYear, stLocal.wMonth, stLocal.wDay,
-					stLocal.wHour, stLocal.wMinute, stLocal.wSecond);
-
-				System::String^ result = gcnew String(buffer);
-				System::String^ log = "Renamed | " + result + " | " + e->FullPath->ToString();
-				listBox2->Items->Add(log);
-			}
-			if (wfd.dwFileAttributes == 34) {
-				count_hiden++;
-			}
-			i++;
-		} while (NULL != FindNextFileW(hFind, &wfd));
-		
-		FindClose(hFind);
-		toolStripStatusLabel4->Text = "Completed";
-	}
-
-}
-private: System::Void fileSystemWatcher1_Changed_1(System::Object^ sender, System::IO::FileSystemEventArgs^ e) {
-	ChangeMode();
-	for (int t = 0; t < dataGridView1->RowCount; t++) {
-		if (dataGridView1->Rows[t]->Cells[0]->Value->ToString() == e->Name) {
-			for (int j = 0; j < 6; j++)
-				dataGridView1->Rows[t]->Cells[j]->Style->BackColor = Color::LightCoral;
 		}
 	}
-	WIN32_FIND_DATAW wfd;
-	pin_ptr<const wchar_t> wname = PtrToStringChars(e->FullPath);
-	HANDLE const hFind = FindFirstFileW(wname, &wfd);
-	SYSTEMTIME stUTC, stLocal;
-	FileTimeToSystemTime(&wfd.ftCreationTime, &stUTC);
-	SystemTimeToTzSpecificLocalTime(NULL, &stUTC, &stLocal);
+	private: System::Void fileSystemWatcher1_Deleted_1(System::Object^ sender, System::IO::FileSystemEventArgs^ e) {
+		for (int t = 0; t < dataGridView1->RowCount; t++) {
+			if (dataGridView1->Rows[t]->Cells[0]->Value->ToString() == e->Name) {
+				dataGridView1->Rows->RemoveAt(dataGridView1->Rows[t]->Index);
+			}
+		}
+		WIN32_FIND_DATAW wfd;
+		pin_ptr<const wchar_t> wname = PtrToStringChars(e->FullPath);
+		HANDLE const hFind = FindFirstFileW(wname, &wfd);
+		SYSTEMTIME stUTC, stLocal;
+		FileTimeToSystemTime(&wfd.ftCreationTime, &stUTC);
+		SystemTimeToTzSpecificLocalTime(NULL, &stUTC, &stLocal);
 
-	char buffer[80];
-	sprintf_s(buffer, 80, "%04d-%02d-%02d %02d:%02d:%02d",
-		stLocal.wYear, stLocal.wMonth, stLocal.wDay,
-		stLocal.wHour, stLocal.wMinute, stLocal.wSecond);
-
-	System::String^ result = gcnew String(buffer);
-	System::String^ log = "Changed | " + result + " | " + e->FullPath->ToString();
-	listBox2->Items->Add(log);
-}
-private: System::Void button3_Click(System::Object^ sender, System::EventArgs^ e) {
-	toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
-	toolStripStatusLabel4->Text = "Ready";
-	if (textBox1->Text=="") {
-		MessageBox::Show("Путь к каталогу не выбран", "Информация",
-			MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
-		return;
+		char buffer[80];
+		sprintf_s(buffer, 80, "%04d-%02d-%02d %02d:%02d:%02d",
+			stLocal.wYear, stLocal.wMonth, stLocal.wDay,
+			stLocal.wHour, stLocal.wMinute, stLocal.wSecond);
+		DateTime currentTime = DateTime::Now;
+		String^ currentTimeStr = currentTime.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo::InvariantCulture);
+		System::String^ result = gcnew String(buffer);
+		System::String^ log = "Deleted | " + currentTimeStr + " | " + e->FullPath->ToString();
+		listBox2->Items->Add(log);
+		ChangeMode();
 	}
-	listBox2->Items->Clear();
-	dataGridView1->Rows->Clear();
-	dataGridView1->Visible = true;
-	WIN32_FIND_DATAW wfd,k;
-	pin_ptr<const wchar_t> wname = PtrToStringChars(textBox1->Text + "\\*");
-	pin_ptr<const wchar_t> dop = PtrToStringChars("C:\\Users\\Егор\\Desktop\\");
-	HANDLE const hFind = FindFirstFileW(wname, &wfd);
-	HANDLE const h = FindFirstFileW(dop, &k);
-	setlocale(LC_ALL, "");
-	ULONGLONG Size= (static_cast<ULONGLONG>(wfd.nFileSizeHigh) <<
-		sizeof(wfd.nFileSizeLow) * 8) |
-		wfd.nFileSizeLow;
-	ULONGLONG FileSize = (static_cast<ULONGLONG>(k.nFileSizeHigh) <<
-		sizeof(k.nFileSizeLow) * 8) |
-		k.nFileSizeLow;
-	ULONGLONG s=(k.nFileSizeHigh * (uint64_t)MAXDWORD) + k.nFileSizeLow;
-	dataGridView1->Rows->Clear();
-	if (INVALID_HANDLE_VALUE != hFind)
-	{
-		int i = 0;
-		DataGridViewRow^ r = gcnew DataGridViewRow();
-		array <String^>^ Values = gcnew array <String^>(dataGridView1->ColumnCount);
-		do
+	private: System::Void fileSystemWatcher1_Renamed_1(System::Object^ sender, RenamedEventArgs^ e) {
+		ChangeMode();
+		WIN32_FIND_DATAW wfd;
+		pin_ptr<const wchar_t> wname = PtrToStringChars(textBox1->Text + "\\*");
+		HANDLE const hFind = FindFirstFileW(wname, &wfd);
+		setlocale(LC_ALL, "");
+		if (INVALID_HANDLE_VALUE != hFind)
 		{
-			dataGridView1->Rows->Add(gcnew String(wfd.cFileName));
-			Size+= (static_cast<ULONGLONG>(wfd.nFileSizeHigh) <<
-				sizeof(wfd.nFileSizeLow) * 8) |
-				wfd.nFileSizeLow;
-		} while (NULL != FindNextFileW(hFind, &wfd));
+			int i = 0;
+			DataGridViewRow^ r = gcnew DataGridViewRow();
+			array <String^>^ Values = gcnew array <String^>(dataGridView1->ColumnCount);
+			int count_hiden = 0, neccesary_row;
+			do
+			{
+				if (e->Name == gcnew String(wfd.cFileName)) {
+					neccesary_row = i;
+					dataGridView1->Rows[i]->Cells[0]->Value = e->Name;
+					ListSortDirection direction = ListSortDirection::Ascending;
+					dataGridView1->Sort(dataGridView1->Columns[0], direction);
+					for (int t = 0; t < dataGridView1->RowCount; t++) {
+						if (dataGridView1->Rows[t]->Cells[0]->Value == e->Name) {
+							for (int j = 0; j < dataGridView1->ColumnCount; j++)
+								dataGridView1->Rows[t]->Cells[j]->Style->BackColor = Color::LightCoral;
+						}
+						if (dataGridView1->Rows[t]->Cells[0]->Value->ToString() == e->OldName) {
+							dataGridView1->Rows->RemoveAt(dataGridView1->Rows[t]->Index);
+						}
+					}
+					SYSTEMTIME stUTC, stLocal;
+					FileTimeToSystemTime(&wfd.ftCreationTime, &stUTC);
+					SystemTimeToTzSpecificLocalTime(NULL, &stUTC, &stLocal);
 
-		FindClose(hFind);
+					char buffer[80];
+					sprintf_s(buffer, 80, "%04d-%02d-%02d %02d:%02d:%02d",
+						stLocal.wYear, stLocal.wMonth, stLocal.wDay,
+						stLocal.wHour, stLocal.wMinute, stLocal.wSecond);
+
+					System::String^ result = gcnew String(buffer);
+					System::String^ log = "Renamed | " + result + " | " + e->FullPath->ToString();
+					listBox2->Items->Add(log);
+				}
+				if (wfd.dwFileAttributes == 34) {
+					count_hiden++;
+				}
+				i++;
+			} while (NULL != FindNextFileW(hFind, &wfd));
+
+			FindClose(hFind);
+			toolStripStatusLabel4->Text = "Completed";
+		}
+
 	}
-	ListSortDirection direction = ListSortDirection::Ascending;
-	dataGridView1->Sort(dataGridView1->Columns[0], direction);
+	private: System::Void fileSystemWatcher1_Changed_1(System::Object^ sender, System::IO::FileSystemEventArgs^ e) {
+		ChangeMode();
+		int k = e->Name->IndexOf("\\");
+		if (k == -1) {
+			for (int t = 0; t < dataGridView1->RowCount; t++) {
+				if (dataGridView1->Rows[t]->Cells[0]->Value->ToString() == e->Name) {
+					for (int j = 0; j < dataGridView1->ColumnCount; j++)
+						dataGridView1->Rows[t]->Cells[j]->Style->BackColor = Color::LightCoral;
+				}
+			}
+		}
+		else {
+			System::String^ tmp = e->Name->Substring(0,e->Name->IndexOf("\\"));
+			for (int t = 0; t < dataGridView1->RowCount; t++) {
+				if (dataGridView1->Rows[t]->Cells[0]->Value->ToString() == tmp) {
+					for (int j = 0; j < dataGridView1->ColumnCount; j++)
+						dataGridView1->Rows[t]->Cells[j]->Style->BackColor = Color::LightCoral;
+				}
+			}
+		}
+		WIN32_FIND_DATAW wfd;
+		pin_ptr<const wchar_t> wname = PtrToStringChars(e->FullPath);
+		HANDLE const hFind = FindFirstFileW(wname, &wfd);
+		SYSTEMTIME stUTC, stLocal;
+		FileTimeToSystemTime(&wfd.ftCreationTime, &stUTC);
+		SystemTimeToTzSpecificLocalTime(NULL, &stUTC, &stLocal);
 
-	if(GridColor==Color::Silver)
-		for (int t = 0; t < dataGridView1->RowCount; t++)
-			dataGridView1->GridColor = GridColor;
-	ChangeMode();
+		char buffer[80];
+		sprintf_s(buffer, 80, "%04d-%02d-%02d %02d:%02d:%02d",
+			stLocal.wYear, stLocal.wMonth, stLocal.wDay,
+			stLocal.wHour, stLocal.wMinute, stLocal.wSecond);
+
+		System::String^ result = gcnew String(buffer);
+		System::String^ log = "Changed | " + result + " | " + e->FullPath->ToString();
+		listBox2->Items->Add(log);
+	}
+private: System::Void button3_Click(System::Object^ sender, System::EventArgs^ e) {
+	refresh();
+	dataGridView1->ClearSelection();
 }
 
 private: System::Void dataGridView1_CellDoubleClick(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e) {
+	if (e->ColumnIndex != 0) return;
 	struct stat s;
 	pin_ptr<const wchar_t> wname;
 	try {
@@ -1600,9 +1616,9 @@ private: System::Void dataGridView1_CellDoubleClick(System::Object^ sender, Syst
 			System::String^ folderName = gcnew System::String(wname);
 			textBox1->Clear();
 			if (e->RowIndex == 1) {
-	
+
 				int k = folderName->Length - 1;
-				int i,count_slash;
+				int i, count_slash;
 				for (i = k; count_slash != 2 && i >= 0; i--) {
 					if (folderName[i] == '\\')
 						count_slash++;
@@ -1637,21 +1653,22 @@ private: System::Void dataGridView1_CellDoubleClick(System::Object^ sender, Syst
 			catch (FileNotFoundException^) {
 				textBox1->Text = textBox1_saved;
 			}
-			
+
 		}
 	}
 	ChangeMode();
+	dataGridView1->ClearSelection();
 }
 
 private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e) {
 	toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
 	toolStripStatusLabel4->Text = "Ready";
-	New::MyForm1^ f = gcnew New::MyForm1(listBox2);
-	for (int i = 0; i<listBox2->Items->Count; i++)
+	New::MyForm1^ f = gcnew New::MyForm1(listBox2, gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
+	for (int i = 0; i < listBox2->Items->Count; i++)
 	{
 		f->listBox1->Items->Add(listBox2->Items[i]);
 	}
-	if(listBox2->Items->Count!=0)
+	if (listBox2->Items->Count != 0)
 		f->ShowDialog();
 	else
 	{
@@ -1659,91 +1676,328 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 			MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
 	}
 }
-private: System::Void textBox1_TextChanged(System::Object^ sender, System::EventArgs^ e) {
+	private: System::Void textBox1_TextChanged(System::Object^ sender, System::EventArgs^ e) {
+		struct stat s;
+		pin_ptr<const wchar_t> wname;
+		try {
+			wname = PtrToStringChars(textBox1->Text + "");
+		}
+		catch (ArgumentOutOfRangeException^) {
+			return;
+		}
+		char output[256];
+		sprintf(output, "%ws", wname);
+		if (stat(output, &s) == 0 && s.st_mode & S_IFDIR) {
+			button2->Enabled = true;
+			button7->Enabled = true;
+			button3->Enabled = true;
+		}
+		else {
+			button2->Enabled = false;
+			button7->Enabled = false;
+			button3->Enabled = false;
+		}
+	}
+	private: System::Void hightlightEvenRowsToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+		ChangeMode();
+	}
+	private: System::Void showToolTipsToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+		if (showToolTipsToolStripMenuItem->CheckState == System::Windows::Forms::CheckState::Checked)
+			this->toolTip1->Active = true;
+		else
+			this->toolTip1->Active = false;
+	}
+	private: System::Void showGridLinesToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+		ChangeMode();
+	}
+	private: System::Void exitToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+		exit(0);
+	}
+	private: System::Void darkModeToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+		ChangeMode();
+	}
+	private: System::Void MyForm_Load(System::Object^ sender, System::EventArgs^ e) {
+		exitToolStripMenuItem->Image = Image::FromFile("Images\\exit.png");;
+		parametersToolStripMenuItem->Image = Image::FromFile("Images\\browse.png");
+		findToolStripMenuItem->Image = Image::FromFile("Images\\find.png");
+		button1->Image = Image::FromFile("Images\\browse.png");
+		button3->Image = Image::FromFile("Images\\refresh.png");
+		button6->Image = Image::FromFile("Images\\logs.png");
+		button7->Image = Image::FromFile("Images\\start.png");
+		button2->Image = Image::FromFile("Images\\snapshot.png");
+		button4->Image = Image::FromFile("Images\\export.png");
+		button5->Image = Image::FromFile("Images\\parametrs.png");
+		pictureBox1->Image = Image::FromFile("Images\\image_white.png");
+		contentToolStripMenuItem->Image = Image::FromFile("Images\\help.png");
+		infoToolStripMenuItem->Image = Image::FromFile("Images\\info.png");
+		toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
+	}
+	private: System::Void parametersToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+		New::Parameters^ f = gcnew New::Parameters(gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
+		f->ShowDialog();
+	}
+	private: System::Void button2_Click(System::Object^ sender, System::EventArgs^ e) {
+		SaveFileDialog^ SaveFileDialog;
+		SaveFileDialog = gcnew System::Windows::Forms::SaveFileDialog;
+		SaveFileDialog->FileName = "Snapshot";
+		SaveFileDialog->DefaultExt = "xml";
+		SaveFileDialog->Filter = "Xml files (*.xml)|*.xml";
+		SaveFileDialog->FilterIndex = 1;
+		SaveFileDialog->CheckPathExists = true;
+		SaveFileDialog->AddExtension = false;
+		System::Windows::Forms::DialogResult result = SaveFileDialog->ShowDialog();
+		save_path = (char*)System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(SaveFileDialog->FileName).ToPointer();
+		last_saved_path = save_path;
+		if (result != System::Windows::Forms::DialogResult::Cancel)
+			backgroundWorker1->RunWorkerAsync();
+	}
+	private: System::Void button7_Click(System::Object^ sender, System::EventArgs^ e) {
+		toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
+		toolStripStatusLabel4->Text = "Ready";
+	}
+	private: System::Void backgroundWorker1_DoWork(System::Object^ sender, System::ComponentModel::DoWorkEventArgs^ e) {
+		toolStripStatusLabel4->Text = "Running";
+		toolStripStatusLabel4->Image = Image::FromFile("Images\\progress.gif");
+		// Converting from System::String^ to std::string
+		std::string vitalik_path = msclr::interop::marshal_as<std::string>(textBox1->Text);
+
+		//сейчас кнопка снапшот не работает, так как Виталику в качестве save_path передаётся полный путь к файлу сохранения
+		// а не к папке назначения, как было до этого
+		//backend_main(vitalik_path, save_path);
+
+		toolStripStatusLabel4->Text = "Completed";
+		toolStripStatusLabel4->Image = Image::FromFile("Images\\completed.png");
+	}
+	private: System::Void dataGridView1_SizeChanged(System::Object^ sender, System::EventArgs^ e) {
+		if (!dataGridView1->ColumnCount) return;
+
+		int sum = 0, count = dataGridView1->ColumnCount;
+		for (int i = 0; i < 7; i++)
+			sum += check_box[i];
+		if (!dataGridView1->ColumnCount) return;
+		if (check_box[0] == true) {
+			if (sum > 1) {
+				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.35;
+				sum--;
+				count--;
+				if (check_box[1] == true) {
+					dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
+					count--;
+				}
+				if (check_box[2] == true) {
+					dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
+					count--;
+				}
+				if (check_box[3] == true) {
+					dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
+					count--;
+				}
+				if (check_box[4] == true) {
+					dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
+					count--;
+				}
+				if (check_box[5] == true) {
+					dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
+					count--;
+				}
+				if (check_box[6] == true) {
+					dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
+				}
+			}
+			else
+				dataGridView1->Columns[0]->Width = dataGridView1->Width;
+		}
+		else {
+			if (check_box[1] == true) {
+				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width / sum;
+				count--;
+			}
+			if (check_box[2] == true) {
+				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width / sum;
+				count--;
+			}
+			if (check_box[3] == true) {
+				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width / sum;
+				count--;
+			}
+			if (check_box[4] == true) {
+				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width / sum;
+				count--;
+			}
+			if (check_box[5] == true) {
+				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width / sum;
+				count--;
+			}
+			if (check_box[6] == true) {
+				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width / sum;
+				count--;
+			}
+		}
+	}
+private: System::Void selectAllToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+	dataGridView1->SelectAll();
+}
+private: System::Void deselectAllToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+	dataGridView1->ClearSelection();
+}
+private: System::Void exportTableToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+	export_selected_items(true);
+}
+private: System::Void runAsAdministratorToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+	std::vector<TOKEN_ELEVATION> tokenElevation(1);
+	DWORD dwSize = 0;
+	HANDLE hProcess = GetCurrentProcess();
+	HANDLE hToken = NULL;
+	BOOL bResult = OpenProcessToken(hProcess, TOKEN_QUERY, &hToken);
+	if (bResult)
+	{
+		bResult = GetTokenInformation(hToken, TokenElevation, tokenElevation.data(), static_cast<DWORD>(sizeof(TOKEN_ELEVATION)), &dwSize);
+		if (!bResult)
+		{
+			if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+			{
+				tokenElevation.resize(dwSize / sizeof(TOKEN_ELEVATION));
+				bResult = GetTokenInformation(hToken, TokenElevation, tokenElevation.data(), dwSize, &dwSize);
+			}
+		}
+		CloseHandle(hToken);
+	}
+
+	if (bResult)
+	{
+		if (tokenElevation[0].TokenIsElevated)
+			return;
+	}
+
+	SHELLEXECUTEINFO sei = { sizeof(sei) };
+	sei.lpVerb = L"runas";
+	WCHAR path[MAX_PATH];
+	GetModuleFileNameW(NULL, path, MAX_PATH);
+	sei.lpFile = path;
+	sei.lpParameters = GetCommandLineW();
+	sei.nShow = SW_SHOW;
+	if (ShellExecuteEx(&sei))
+	{
+		ExitProcess(0);
+	}
+}
+private: System::Void toolStripMenuItem1_Click(System::Object^ sender, System::EventArgs^ e) {
+	copy();
+}
+private: System::Void refreshToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+	refresh();
+}
+private: System::Void exportToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+	export_selected_items(false);
+}
+private: System::Void exportSelectedItemsToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+	export_selected_items(false);
+}
+private: System::Void openToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+	if (dataGridView1->SelectedCells[0]->ColumnIndex != 0)
+		return;
+	System::Object^ tmp = dataGridView1->SelectedCells[0]->Value;
 	struct stat s;
 	pin_ptr<const wchar_t> wname;
 	try {
-		wname = PtrToStringChars(textBox1->Text+"");
+		wname = PtrToStringChars(textBox1->Text + "\\" + tmp);
 	}
 	catch (ArgumentOutOfRangeException^) {
 		return;
 	}
-	char output[256];
-	sprintf(output, "%ws", wname);
-	if (stat(output, &s) == 0&& s.st_mode & S_IFDIR)
-		button2->Enabled = true;
-	else
-		button2->Enabled = false;
-}
-private: System::Void hightlightEvenRowsToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-	ChangeMode();
-}
-private: System::Void showToolTipsToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-	if (showToolTipsToolStripMenuItem->CheckState == System::Windows::Forms::CheckState::Checked)
-		this->toolTip1->Active = true;
-	else
-		this->toolTip1->Active = false;
-}
-private: System::Void showGridLinesToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-	ChangeMode();
-}
-private: System::Void exitToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-	exit(0);
-}
-private: System::Void darkModeToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-	ChangeMode();
-}
-private: System::Void MyForm_Load(System::Object^ sender, System::EventArgs^ e) {
-	exitToolStripMenuItem->Image = Image::FromFile("Images\\exit.png");;
-	parametersToolStripMenuItem->Image = Image::FromFile("Images\\browse.png");
-	findToolStripMenuItem->Image = Image::FromFile("Images\\find.png");
-	button1->Image= Image::FromFile("Images\\browse.png");
-	button3->Image = Image::FromFile("Images\\refresh.png");
-	button6->Image = Image::FromFile("Images\\logs.png");
-	button7->Image = Image::FromFile("Images\\start.png");
-	button2->Image = Image::FromFile("Images\\snapshot.png");
-	button4->Image = Image::FromFile("Images\\export.png");
-	button5->Image = Image::FromFile("Images\\parametrs.png");
-	pictureBox1->Image= Image::FromFile("Images\\image_white.png");
-	contentToolStripMenuItem->Image = Image::FromFile("Images\\help.png");
-	infoToolStripMenuItem->Image = Image::FromFile("Images\\info.png");
-	toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
-}
-private: System::Void parametersToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-	New::Parameters^ f = gcnew New::Parameters();
-	f->ShowDialog();
-}
-private: System::Void button2_Click(System::Object^ sender, System::EventArgs^ e) {
-	backgroundWorker1->RunWorkerAsync();
-}
-private: System::Void button7_Click(System::Object^ sender, System::EventArgs^ e) {
-	toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
-	toolStripStatusLabel4->Text = "Ready";
-}
-private: System::Void backgroundWorker1_DoWork(System::Object^ sender, System::ComponentModel::DoWorkEventArgs^ e) {
-	toolStripStatusLabel4->Text = "Running";
-	toolStripStatusLabel4->Image = Image::FromFile("Images\\progress.gif");
-	// Converting from System::String^ to std::string
-	std::string vitalik_path = msclr::interop::marshal_as<std::string>(textBox1->Text);
+	char Path[256];
+	sprintf(Path, "%ws", wname);
+	if (stat(Path, &s) == 0 && s.st_mode & S_IFDIR) {
+		try{
+			System::String^ path_to_open = msclr::interop::marshal_as<System::String^>(Path);
+			Process^ myProcess = gcnew Process;
+			myProcess->StartInfo->FileName = "explorer.exe";
+			myProcess->StartInfo->Arguments = "\"" + path_to_open + "\"";
+			myProcess->Start();
+		}
+		catch (...){
+		}
+	}
+	else {
+		System::String^ path_to_open = msclr::interop::marshal_as<System::String^>(Path);
+		System::String^ tmp = path_to_open->Substring(path_to_open->LastIndexOf("\\"));
+		tmp=tmp->Substring(tmp->LastIndexOf("."));
+		Process^ myProcess = gcnew Process;
+		if(tmp==".docx")
+			myProcess->StartInfo->FileName = "winword.exe";
+		else if (tmp == ".xlsx")
+			myProcess->StartInfo->FileName = "excel.exe";
+		else if (tmp == ".pdf")
+			myProcess->StartInfo->FileName = "acrobat.exe";
+		else if (tmp == ".pptx")
+			myProcess->StartInfo->FileName = "powerpnt.exe";
+		else if (tmp == ".lnk") {
+			myProcess->StartInfo->UseShellExecute = true;
+			try {
+				myProcess->StartInfo->FileName = "\"" + path_to_open + "\"";
+				myProcess->Start();
+				return;
+			}
+			catch (...){
+			}
+			try {
+				myProcess->StartInfo->FileName = path_to_open;
+				myProcess->Start();
+			}
+			catch (...) {
+			}
+			return;
+		}
+		else if (tmp == ".exe") {
+			myProcess->StartInfo->FileName = path_to_open;
+			myProcess->Start();
+			return;
+		}
+		else if (tmp == ".png"||tmp==".jpg") {
+			Process::Start(path_to_open);
+			return;
+		}
+		myProcess->StartInfo->Arguments = "\"" + path_to_open + "\"";
+		try {
+			myProcess->Start();
+		}
+		catch (...) {
 
-	///определение пути к Documents\FolderWatcher
-	wchar_t Folder[1024];
-	char folderwathcher_path[1024];
-	HRESULT hr = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, Folder);
-	if (SUCCEEDED(hr))
-		wcstombs(folderwathcher_path, Folder, 1023);
-
-	char tmp[17] = "\\FolderWatcher";
-	strcat(folderwathcher_path, tmp);
-
-
-	backend_main(vitalik_path, folderwathcher_path);
-
-	toolStripStatusLabel4->Text = "Completed";
-	toolStripStatusLabel4->Image = Image::FromFile("Images\\completed.png");
+		}
+	}
 }
-private: System::Void dataGridView1SelectionChanged(System::Object^ sender, System::EventArgs^ e) {
-	printf("");
+private: System::Void deleteToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+	//добавить подтверждение - messagebox
+	delete_selected_items();
+}
+private: System::Void deleteSelectedItemsToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+	//добавить подтверждение - messagebox
+	delete_selected_items();
+}
+private: System::Void propetiesToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+	if (dataGridView1->SelectedCells->Count!=1&&dataGridView1->SelectedCells[0]->ColumnIndex != 0)
+		return;
+	System::Object^ tmp = dataGridView1->SelectedCells[0]->Value;
+	struct stat s;
+	pin_ptr<const wchar_t> wname;
+	try {
+		wname = PtrToStringChars(textBox1->Text + "\\" + tmp);
+	}
+	catch (ArgumentOutOfRangeException^) {
+		return;
+	}
+	char Path[256];
+	sprintf(Path, "%ws", wname);
+	if (stat(Path, &s) == 0 && s.st_mode & S_IFDIR || stat(Path, &s) == 0 && s.st_mode & S_IFREG) {
+		LPCWSTR filePath = wname; 
+		SHELLEXECUTEINFO shellInfo = { 0 };
+		shellInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+		shellInfo.fMask = SEE_MASK_INVOKEIDLIST;
+		shellInfo.lpVerb = L"properties";
+		shellInfo.lpFile = filePath;
+		shellInfo.nShow = SW_SHOW;
+		ShellExecuteEx(&shellInfo);
+	}
 }
 };
 }

@@ -15,11 +15,9 @@ namespace New {
 	public ref class MyForm1 : public System::Windows::Forms::Form
 	{
 	public:
-		MyForm1(System::Windows::Forms::ListBox^ listBox2)
+		MyForm1(System::Windows::Forms::ListBox^ listBox2, System::ComponentModel::ComponentResourceManager^ resources)
 		{
-			InitializeComponent();
-			//this->listBox2 = listBox2;
-			printf("");
+			InitializeComponent(resources);
 			//
 			//TODO: добавьте код конструктора
 			//
@@ -45,21 +43,21 @@ namespace New {
 		/// <summary>
 		/// ќб€зательна€ переменна€ конструктора.
 		/// </summary>
-		System::ComponentModel::Container ^components;
+		System::ComponentModel::Container^ components;
 
 #pragma region Windows Form Designer generated code
 		/// <summary>
 		/// “ребуемый метод дл€ поддержки конструктора Ч не измен€йте 
 		/// содержимое этого метода с помощью редактора кода.
 		/// </summary>
-		void InitializeComponent(void)
+		void InitializeComponent(System::ComponentModel::ComponentResourceManager^ resources)
 		{
 			this->listBox1 = (gcnew System::Windows::Forms::ListBox());
 			this->SuspendLayout();
 			// 
 			// listBox1
 			// 
-			this->listBox1->BackColor = System::Drawing::SystemColors::Info;
+			this->listBox1->BackColor = Color::WhiteSmoke;
 			this->listBox1->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->listBox1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
@@ -75,19 +73,21 @@ namespace New {
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->AutoSize = true;
-			this->BackColor = System::Drawing::SystemColors::Info;
+			this->BackColor = Color::WhiteSmoke;
 			this->ClientSize = System::Drawing::Size(732, 305);
 			this->Controls->Add(this->listBox1);
 			this->MinimumSize = System::Drawing::Size(750, 352);
 			this->Name = L"MyForm1";
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterParent;
-			this->Text = L"Journal";
+			this->Text = L"Logs";
 			this->Load += gcnew System::EventHandler(this, &MyForm1::MyForm1_Load);
 			this->ResumeLayout(false);
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 
 		}
 #pragma endregion
 	private: System::Void MyForm1_Load(System::Object^ sender, System::EventArgs^ e) {
+
 	}
 	};
 }

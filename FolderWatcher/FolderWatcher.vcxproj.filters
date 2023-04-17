@@ -34,6 +34,9 @@
     <ClInclude Include="Form_Journal.h">
       <Filter>Frontend</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\FolderWatcher\FolderWatcher\globals.h">
+      <Filter>Frontend</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MyForm.cpp">
