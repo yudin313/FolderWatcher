@@ -37,6 +37,9 @@
     <ClInclude Include="..\..\FolderWatcher\FolderWatcher\globals.h">
       <Filter>Frontend</Filter>
     </ClInclude>
+    <ClInclude Include="Compare.h">
+      <Filter>Frontend</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MyForm.cpp">
@@ -55,6 +58,9 @@
       <Filter>Frontend</Filter>
     </ClCompile>
     <ClCompile Include="Parameters.cpp">
+      <Filter>Frontend</Filter>
+    </ClCompile>
+    <ClCompile Include="Compare.cpp">
       <Filter>Frontend</Filter>
     </ClCompile>
   </ItemGroup>
@@ -119,5 +125,10 @@
     <Image Include="Images\completed.png">
       <Filter>Frontend\Images</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Compare.resx">
+      <Filter>Frontend</Filter>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

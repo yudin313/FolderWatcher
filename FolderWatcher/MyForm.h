@@ -10,12 +10,13 @@
 #include "Parameters.h"
 #include "backend.h"
 #include "globals.h"
+#include "Compare.h"
 #include <msclr\marshal_cppstd.h>
 #include<vector>
 #include <Shlwapi.h>
 #include <ShlObj.h>
 #include <filesystem>
-
+#include <tchar.h>
 
 #pragma comment(lib, "shell32.lib")
 bool button5_first = 0;
@@ -23,6 +24,7 @@ bool button5_first_click = 0;
 char* save_path;
 char* last_saved_path;
 bool parameters_flag = true;
+int history_count = 0;
 namespace Example {
 
 	using namespace System;
@@ -60,12 +62,13 @@ namespace Example {
 	private: System::Windows::Forms::ToolStripMenuItem^ refreshToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ exportToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ propetiesToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ historyToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ firstStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ secondStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ thirdStripMenuItem;
 
-
-
-
-
-
+	private: System::Windows::Forms::ToolStripMenuItem^ fourthStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ fifthStripMenuItem;
 
 	public:
 		Color GridColor = Color::Silver;
@@ -98,8 +101,6 @@ namespace Example {
 
 	private: System::Windows::Forms::ToolStripMenuItem^ viewToolStripMenuItem;
 
-
-
 	private: System::Windows::Forms::OpenFileDialog^ openFileDialog1;
 
 	private: System::Windows::Forms::ToolStripMenuItem^ helpToolStripMenuItem;
@@ -108,23 +109,8 @@ namespace Example {
 	private: System::Windows::Forms::ToolStripMenuItem^ contentToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ infoToolStripMenuItem;
 
-
-
-
-
-
-
-
-
-
 	private: System::Windows::Forms::DataGridView^ dataGridView1;
-
-
-
-
 	private: System::Windows::Forms::ToolTip^ toolTip1;
-
-
 	private: System::Windows::Forms::ToolStripStatusLabel^ toolStripStatusLabel1;
 	private: System::Windows::Forms::ToolStripStatusLabel^ toolStripStatusLabel4;
 	private: System::Windows::Forms::StatusStrip^ statusStrip1;
@@ -312,12 +298,30 @@ namespace Example {
 				{
 					allCellsText += cellText;
 				}
-				Clipboard::SetText(allCellsText->TrimEnd('\t'));
+				try {
+					Clipboard::SetText(allCellsText->TrimEnd('\t'));
+				}
+				catch(...){
+				}
 
-				MessageBox::Show(allCellsText);
 			}
 		}
 		void Add_Column_Headers() {
+			struct stat s;
+			pin_ptr<const wchar_t> wname;
+			try {
+				wname = PtrToStringChars(textBox1->Text);
+			}
+			catch (ArgumentOutOfRangeException^) {
+				return;
+			}
+			char Path[256];
+			sprintf(Path, "%ws", wname);
+			if (stat(Path, &s) == 0 && s.st_mode & S_IFDIR) {
+				dataGridView1->Columns->Add("FileName", "File Name");
+				dataGridView1->Columns[0]->Width = dataGridView1->Width;
+				return;
+			}
 			int sum = 0;
 			for (int i = 0; i < 7; i++)
 				sum += check_box[i];
@@ -532,7 +536,7 @@ namespace Example {
 	private: System::Windows::Forms::PictureBox^ pictureBox1;
 	private: System::Windows::Forms::ToolStripMenuItem^ instrumentsToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ runAsAdministratorToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^ findToolStripMenuItem;
+
 	private: System::Windows::Forms::ToolStripMenuItem^ exportTableToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ selectAllToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ deselectAllToolStripMenuItem;
@@ -578,6 +582,12 @@ namespace Example {
 			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
 			this->fileToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->parametersToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->historyToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->firstStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->secondStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->thirdStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->fourthStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->fifthStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->viewToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->selectAllToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -588,7 +598,6 @@ namespace Example {
 			this->darkModeToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->instrumentsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->runAsAdministratorToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->findToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->exportTableToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->exportSelectedItemsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->deleteSelectedItemsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -665,9 +674,9 @@ namespace Example {
 			// 
 			// fileToolStripMenuItem
 			// 
-			this->fileToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
+			this->fileToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
 				this->parametersToolStripMenuItem,
-					this->exitToolStripMenuItem
+					this->historyToolStripMenuItem, this->exitToolStripMenuItem
 			});
 			this->fileToolStripMenuItem->Name = L"fileToolStripMenuItem";
 			this->fileToolStripMenuItem->Size = System::Drawing::Size(46, 24);
@@ -676,14 +685,62 @@ namespace Example {
 			// parametersToolStripMenuItem
 			// 
 			this->parametersToolStripMenuItem->Name = L"parametersToolStripMenuItem";
-			this->parametersToolStripMenuItem->Size = System::Drawing::Size(165, 26);
+			this->parametersToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::P));
+			this->parametersToolStripMenuItem->Size = System::Drawing::Size(215, 26);
 			this->parametersToolStripMenuItem->Text = L"Parameters";
 			this->parametersToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::parametersToolStripMenuItem_Click);
+			// 
+			// historyToolStripMenuItem
+			// 
+			this->historyToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {
+				this->firstStripMenuItem,
+					this->secondStripMenuItem, this->thirdStripMenuItem, this->fourthStripMenuItem, this->fifthStripMenuItem
+			});
+			this->historyToolStripMenuItem->Enabled = false;
+			this->historyToolStripMenuItem->Name = L"historyToolStripMenuItem";
+			this->historyToolStripMenuItem->Size = System::Drawing::Size(215, 26);
+			this->historyToolStripMenuItem->Text = L"History";
+			// 
+			// firstStripMenuItem
+			// 
+			this->firstStripMenuItem->Name = L"firstStripMenuItem";
+			this->firstStripMenuItem->Size = System::Drawing::Size(83, 26);
+			this->firstStripMenuItem->Visible = false;
+			this->firstStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::firstStripMenuItem_Click);
+			// 
+			// secondStripMenuItem
+			// 
+			this->secondStripMenuItem->Name = L"secondStripMenuItem";
+			this->secondStripMenuItem->Size = System::Drawing::Size(83, 26);
+			this->secondStripMenuItem->Visible = false;
+			this->secondStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::secondStripMenuItem_Click);
+			// 
+			// thirdStripMenuItem
+			// 
+			this->thirdStripMenuItem->Name = L"thirdStripMenuItem";
+			this->thirdStripMenuItem->Size = System::Drawing::Size(83, 26);
+			this->thirdStripMenuItem->Visible = false;
+			this->thirdStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::thirdStripMenuItem_Click);
+			// 
+			// fourthStripMenuItem
+			// 
+			this->fourthStripMenuItem->Name = L"fourthStripMenuItem";
+			this->fourthStripMenuItem->Size = System::Drawing::Size(83, 26);
+			this->fourthStripMenuItem->Visible = false;
+			this->fourthStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::fourthStripMenuItem_Click);
+			// 
+			// fifthStripMenuItem
+			// 
+			this->fifthStripMenuItem->Name = L"fifthStripMenuItem";
+			this->fifthStripMenuItem->Size = System::Drawing::Size(83, 26);
+			this->fifthStripMenuItem->Visible = false;
+			this->fifthStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::fifthStripMenuItem_Click);
 			// 
 			// exitToolStripMenuItem
 			// 
 			this->exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
-			this->exitToolStripMenuItem->Size = System::Drawing::Size(165, 26);
+			this->exitToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Alt | System::Windows::Forms::Keys::F4));
+			this->exitToolStripMenuItem->Size = System::Drawing::Size(215, 26);
 			this->exitToolStripMenuItem->Text = L"Exit";
 			this->exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::exitToolStripMenuItem_Click);
 			// 
@@ -701,14 +758,16 @@ namespace Example {
 			// selectAllToolStripMenuItem
 			// 
 			this->selectAllToolStripMenuItem->Name = L"selectAllToolStripMenuItem";
-			this->selectAllToolStripMenuItem->Size = System::Drawing::Size(233, 26);
+			this->selectAllToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::A));
+			this->selectAllToolStripMenuItem->Size = System::Drawing::Size(282, 26);
 			this->selectAllToolStripMenuItem->Text = L"Select All";
 			this->selectAllToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::selectAllToolStripMenuItem_Click);
 			// 
 			// deselectAllToolStripMenuItem
 			// 
 			this->deselectAllToolStripMenuItem->Name = L"deselectAllToolStripMenuItem";
-			this->deselectAllToolStripMenuItem->Size = System::Drawing::Size(233, 26);
+			this->deselectAllToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::D));
+			this->deselectAllToolStripMenuItem->Size = System::Drawing::Size(282, 26);
 			this->deselectAllToolStripMenuItem->Text = L"Deselect All";
 			this->deselectAllToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::deselectAllToolStripMenuItem_Click);
 			// 
@@ -718,7 +777,8 @@ namespace Example {
 			this->showToolTipsToolStripMenuItem->CheckOnClick = true;
 			this->showToolTipsToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
 			this->showToolTipsToolStripMenuItem->Name = L"showToolTipsToolStripMenuItem";
-			this->showToolTipsToolStripMenuItem->Size = System::Drawing::Size(233, 26);
+			this->showToolTipsToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Alt | System::Windows::Forms::Keys::T));
+			this->showToolTipsToolStripMenuItem->Size = System::Drawing::Size(282, 26);
 			this->showToolTipsToolStripMenuItem->Text = L"Show ToolTips";
 			this->showToolTipsToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::showToolTipsToolStripMenuItem_Click);
 			// 
@@ -728,7 +788,8 @@ namespace Example {
 			this->showGridLinesToolStripMenuItem->CheckOnClick = true;
 			this->showGridLinesToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
 			this->showGridLinesToolStripMenuItem->Name = L"showGridLinesToolStripMenuItem";
-			this->showGridLinesToolStripMenuItem->Size = System::Drawing::Size(233, 26);
+			this->showGridLinesToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Alt | System::Windows::Forms::Keys::G));
+			this->showGridLinesToolStripMenuItem->Size = System::Drawing::Size(282, 26);
 			this->showGridLinesToolStripMenuItem->Text = L"Show GridLines";
 			this->showGridLinesToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::showGridLinesToolStripMenuItem_Click);
 			// 
@@ -736,7 +797,8 @@ namespace Example {
 			// 
 			this->hightlightEvenRowsToolStripMenuItem->CheckOnClick = true;
 			this->hightlightEvenRowsToolStripMenuItem->Name = L"hightlightEvenRowsToolStripMenuItem";
-			this->hightlightEvenRowsToolStripMenuItem->Size = System::Drawing::Size(233, 26);
+			this->hightlightEvenRowsToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Alt | System::Windows::Forms::Keys::H));
+			this->hightlightEvenRowsToolStripMenuItem->Size = System::Drawing::Size(282, 26);
 			this->hightlightEvenRowsToolStripMenuItem->Text = L"Hightlight Even Rows";
 			this->hightlightEvenRowsToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::hightlightEvenRowsToolStripMenuItem_Click);
 			// 
@@ -744,15 +806,16 @@ namespace Example {
 			// 
 			this->darkModeToolStripMenuItem->CheckOnClick = true;
 			this->darkModeToolStripMenuItem->Name = L"darkModeToolStripMenuItem";
-			this->darkModeToolStripMenuItem->Size = System::Drawing::Size(233, 26);
+			this->darkModeToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Alt | System::Windows::Forms::Keys::D));
+			this->darkModeToolStripMenuItem->Size = System::Drawing::Size(282, 26);
 			this->darkModeToolStripMenuItem->Text = L"Dark Mode";
 			this->darkModeToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::darkModeToolStripMenuItem_Click);
 			// 
 			// instrumentsToolStripMenuItem
 			// 
-			this->instrumentsToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {
+			this->instrumentsToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
 				this->runAsAdministratorToolStripMenuItem,
-					this->findToolStripMenuItem, this->exportTableToolStripMenuItem, this->exportSelectedItemsToolStripMenuItem, this->deleteSelectedItemsToolStripMenuItem
+					this->exportTableToolStripMenuItem, this->exportSelectedItemsToolStripMenuItem, this->deleteSelectedItemsToolStripMenuItem
 			});
 			this->instrumentsToolStripMenuItem->Name = L"instrumentsToolStripMenuItem";
 			this->instrumentsToolStripMenuItem->Size = System::Drawing::Size(99, 24);
@@ -761,34 +824,33 @@ namespace Example {
 			// runAsAdministratorToolStripMenuItem
 			// 
 			this->runAsAdministratorToolStripMenuItem->Name = L"runAsAdministratorToolStripMenuItem";
-			this->runAsAdministratorToolStripMenuItem->Size = System::Drawing::Size(237, 26);
+			this->runAsAdministratorToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>(((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Shift)
+				| System::Windows::Forms::Keys::A));
+			this->runAsAdministratorToolStripMenuItem->Size = System::Drawing::Size(322, 26);
 			this->runAsAdministratorToolStripMenuItem->Text = L"Run as Administrator";
 			this->runAsAdministratorToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::runAsAdministratorToolStripMenuItem_Click);
-			// 
-			// findToolStripMenuItem
-			// 
-			this->findToolStripMenuItem->Name = L"findToolStripMenuItem";
-			this->findToolStripMenuItem->Size = System::Drawing::Size(237, 26);
-			this->findToolStripMenuItem->Text = L"Find";
 			// 
 			// exportTableToolStripMenuItem
 			// 
 			this->exportTableToolStripMenuItem->Name = L"exportTableToolStripMenuItem";
-			this->exportTableToolStripMenuItem->Size = System::Drawing::Size(237, 26);
+			this->exportTableToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::E));
+			this->exportTableToolStripMenuItem->Size = System::Drawing::Size(322, 26);
 			this->exportTableToolStripMenuItem->Text = L"Export Table";
 			this->exportTableToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::exportTableToolStripMenuItem_Click);
 			// 
 			// exportSelectedItemsToolStripMenuItem
 			// 
 			this->exportSelectedItemsToolStripMenuItem->Name = L"exportSelectedItemsToolStripMenuItem";
-			this->exportSelectedItemsToolStripMenuItem->Size = System::Drawing::Size(237, 26);
+			this->exportSelectedItemsToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::B));
+			this->exportSelectedItemsToolStripMenuItem->Size = System::Drawing::Size(322, 26);
 			this->exportSelectedItemsToolStripMenuItem->Text = L"Export Selected Items";
 			this->exportSelectedItemsToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::exportSelectedItemsToolStripMenuItem_Click);
 			// 
 			// deleteSelectedItemsToolStripMenuItem
 			// 
 			this->deleteSelectedItemsToolStripMenuItem->Name = L"deleteSelectedItemsToolStripMenuItem";
-			this->deleteSelectedItemsToolStripMenuItem->Size = System::Drawing::Size(237, 26);
+			this->deleteSelectedItemsToolStripMenuItem->ShortcutKeys = System::Windows::Forms::Keys::Delete;
+			this->deleteSelectedItemsToolStripMenuItem->Size = System::Drawing::Size(322, 26);
 			this->deleteSelectedItemsToolStripMenuItem->Text = L"Delete Selected Items";
 			this->deleteSelectedItemsToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::deleteSelectedItemsToolStripMenuItem_Click);
 			// 
@@ -888,49 +950,61 @@ namespace Example {
 					this->deleteToolStripMenuItem, this->openToolStripMenuItem, this->refreshToolStripMenuItem, this->exportToolStripMenuItem, this->propetiesToolStripMenuItem
 			});
 			this->contextMenuStrip1->Name = L"contextMenuStrip1";
-			this->contextMenuStrip1->Size = System::Drawing::Size(141, 148);
+			this->contextMenuStrip1->Size = System::Drawing::Size(211, 176);
 			// 
 			// toolStripMenuItem1
 			// 
 			this->toolStripMenuItem1->Name = L"toolStripMenuItem1";
-			this->toolStripMenuItem1->Size = System::Drawing::Size(140, 24);
+			this->toolStripMenuItem1->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::B));
+			this->toolStripMenuItem1->Size = System::Drawing::Size(210, 24);
 			this->toolStripMenuItem1->Text = L"Copy";
 			this->toolStripMenuItem1->Click += gcnew System::EventHandler(this, &MyForm::toolStripMenuItem1_Click);
 			// 
 			// deleteToolStripMenuItem
 			// 
 			this->deleteToolStripMenuItem->Name = L"deleteToolStripMenuItem";
-			this->deleteToolStripMenuItem->Size = System::Drawing::Size(140, 24);
+			this->deleteToolStripMenuItem->ShortcutKeys = System::Windows::Forms::Keys::Delete;
+			this->deleteToolStripMenuItem->Size = System::Drawing::Size(210, 24);
 			this->deleteToolStripMenuItem->Text = L"Delete";
 			this->deleteToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::deleteToolStripMenuItem_Click);
 			// 
 			// openToolStripMenuItem
 			// 
 			this->openToolStripMenuItem->Name = L"openToolStripMenuItem";
-			this->openToolStripMenuItem->Size = System::Drawing::Size(140, 24);
+			this->openToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::O));
+			this->openToolStripMenuItem->Size = System::Drawing::Size(210, 24);
 			this->openToolStripMenuItem->Text = L"Open";
 			this->openToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::openToolStripMenuItem_Click);
 			// 
 			// refreshToolStripMenuItem
 			// 
 			this->refreshToolStripMenuItem->Name = L"refreshToolStripMenuItem";
-			this->refreshToolStripMenuItem->Size = System::Drawing::Size(140, 24);
+			this->refreshToolStripMenuItem->ShortcutKeys = System::Windows::Forms::Keys::F5;
+			this->refreshToolStripMenuItem->Size = System::Drawing::Size(210, 24);
 			this->refreshToolStripMenuItem->Text = L"Refresh";
 			this->refreshToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::refreshToolStripMenuItem_Click);
 			// 
 			// exportToolStripMenuItem
 			// 
 			this->exportToolStripMenuItem->Name = L"exportToolStripMenuItem";
-			this->exportToolStripMenuItem->Size = System::Drawing::Size(140, 24);
+			this->exportToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::E));
+			this->exportToolStripMenuItem->Size = System::Drawing::Size(210, 24);
 			this->exportToolStripMenuItem->Text = L"Export";
 			this->exportToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::exportToolStripMenuItem_Click);
 			// 
 			// propetiesToolStripMenuItem
 			// 
 			this->propetiesToolStripMenuItem->Name = L"propetiesToolStripMenuItem";
-			this->propetiesToolStripMenuItem->Size = System::Drawing::Size(140, 24);
+			this->propetiesToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::R));
+			this->propetiesToolStripMenuItem->Size = System::Drawing::Size(210, 24);
 			this->propetiesToolStripMenuItem->Text = L"Propeties";
 			this->propetiesToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::propetiesToolStripMenuItem_Click);
+			// 
+			// toolTip1
+			// 
+			this->toolTip1->IsBalloon = true;
+			this->toolTip1->ToolTipIcon = System::Windows::Forms::ToolTipIcon::Info;
+			this->toolTip1->ToolTipTitle = L"Info";
 			// 
 			// button1
 			// 
@@ -947,7 +1021,7 @@ namespace Example {
 			this->button1->TabIndex = 0;
 			this->button1->Tag = L"";
 			this->button1->Text = L"Browse";
-			this->toolTip1->SetToolTip(this->button1, L"Select Folder to Scan:");
+			this->toolTip1->SetToolTip(this->button1, L"Select Folder to Scan");
 			this->button1->UseVisualStyleBackColor = false;
 			this->button1->Click += gcnew System::EventHandler(this, &MyForm::button1_Click);
 			// 
@@ -1228,7 +1302,7 @@ namespace Example {
 			this->tableLayoutPanel7->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent,
 				89.32039F)));
 			this->tableLayoutPanel7->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Absolute,
-				505)));
+				500)));
 			this->tableLayoutPanel7->Controls->Add(this->panel2, 1, 0);
 			this->tableLayoutPanel7->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->tableLayoutPanel7->Location = System::Drawing::Point(3, 528);
@@ -1247,7 +1321,7 @@ namespace Example {
 			this->panel2->Location = System::Drawing::Point(81, 3);
 			this->panel2->MaximumSize = System::Drawing::Size(1000, 150);
 			this->panel2->Name = L"panel2";
-			this->panel2->Size = System::Drawing::Size(647, 68);
+			this->panel2->Size = System::Drawing::Size(652, 68);
 			this->panel2->TabIndex = 17;
 			// 
 			// tableLayoutPanel9
@@ -1428,8 +1502,39 @@ namespace Example {
 		}
 		System::String^ new_path = msclr::interop::marshal_as<System::String^>(path);
 		openFileDialog1->InitialDirectory = new_path;
-		openFileDialog1->ShowDialog();
+		System::Windows::Forms::DialogResult result=openFileDialog1->ShowDialog();
 		String^ fileName = openFileDialog1->FileName;
+		if (result == System::Windows::Forms::DialogResult::OK) {
+			textBox1->Text = openFileDialog1->FileName;
+			//заполнение тьаблицы из слепка
+			dataGridView1->Rows->Clear();
+			historyToolStripMenuItem->Enabled = true;
+			if (history_count == 0) {
+				firstStripMenuItem->Text = openFileDialog1->FileName;
+				firstStripMenuItem->Visible = true;
+				history_count++;
+			}
+			else if (history_count == 1) {
+				secondStripMenuItem->Text = openFileDialog1->FileName;
+				secondStripMenuItem->Visible = true;
+				history_count++;
+			}
+			else if (history_count == 2) {
+				thirdStripMenuItem->Text = openFileDialog1->FileName;
+				thirdStripMenuItem->Visible = true;
+				history_count++;
+			}
+			else if (history_count == 3) {
+				fourthStripMenuItem->Text = openFileDialog1->FileName;
+				fourthStripMenuItem->Visible = true;
+				history_count++;
+			}
+			else if (history_count == 4) {
+				fifthStripMenuItem->Text = openFileDialog1->FileName;
+				fifthStripMenuItem->Visible = true;
+				history_count = 0;
+			}
+		}
 	}
 	private: System::Void button5_Click(System::Object^ sender, System::EventArgs^ e) {
 		toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
@@ -1591,6 +1696,7 @@ namespace Example {
 		listBox2->Items->Add(log);
 	}
 private: System::Void button3_Click(System::Object^ sender, System::EventArgs^ e) {
+	dataGridView1->ClearSelection();
 	refresh();
 	dataGridView1->ClearSelection();
 }
@@ -1692,6 +1798,11 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 			button7->Enabled = true;
 			button3->Enabled = true;
 		}
+		else if (stat(output, &s) == 0 && s.st_mode & S_IFREG) {
+			//проверка является ли файл нашим слепком
+			button2->Enabled = false;
+			button3->Enabled = false;
+		}
 		else {
 			button2->Enabled = false;
 			button7->Enabled = false;
@@ -1719,7 +1830,6 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 	private: System::Void MyForm_Load(System::Object^ sender, System::EventArgs^ e) {
 		exitToolStripMenuItem->Image = Image::FromFile("Images\\exit.png");;
 		parametersToolStripMenuItem->Image = Image::FromFile("Images\\browse.png");
-		findToolStripMenuItem->Image = Image::FromFile("Images\\find.png");
 		button1->Image = Image::FromFile("Images\\browse.png");
 		button3->Image = Image::FromFile("Images\\refresh.png");
 		button6->Image = Image::FromFile("Images\\logs.png");
@@ -1748,12 +1858,79 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 		System::Windows::Forms::DialogResult result = SaveFileDialog->ShowDialog();
 		save_path = (char*)System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(SaveFileDialog->FileName).ToPointer();
 		last_saved_path = save_path;
-		if (result != System::Windows::Forms::DialogResult::Cancel)
+		String^ path = SaveFileDialog->FileName;
+		if (File::Exists(path))
+		{
+			int i = 1;
+			while (File::Exists(path))
+			{
+				path = SaveFileDialog->FileName->Substring(0, SaveFileDialog->FileName->LastIndexOf(".")) + "(" + i + ")" +
+					SaveFileDialog->FileName->Substring(SaveFileDialog->FileName->LastIndexOf("."));
+				i++;
+			}
+		}
+		SaveFileDialog->FileName = path;
+		if (result == System::Windows::Forms::DialogResult::OK) {
 			backgroundWorker1->RunWorkerAsync();
+			textBox1->Text = SaveFileDialog->FileName;
+			dataGridView1->Rows->Clear();
+			//заполнение таблицы из слепка
+			historyToolStripMenuItem->Enabled = true;
+			if (history_count == 0) {
+				firstStripMenuItem->Text = SaveFileDialog->FileName;
+				firstStripMenuItem->Visible = true;
+				history_count++;
+			}
+			else if (history_count == 1) {
+				secondStripMenuItem->Text = SaveFileDialog->FileName;
+				secondStripMenuItem->Visible = true;
+				history_count++;
+			}
+			else if (history_count == 2) {
+				thirdStripMenuItem->Text = SaveFileDialog->FileName;
+				thirdStripMenuItem->Visible = true;
+				history_count++;
+			}
+			else if (history_count == 3) {
+				fourthStripMenuItem->Text = SaveFileDialog->FileName;
+				fourthStripMenuItem->Visible = true;
+				history_count++;
+			}
+			else if (history_count == 4) {
+				fifthStripMenuItem->Text = SaveFileDialog->FileName;
+				fifthStripMenuItem->Visible = true;
+				history_count=0;
+			}
+		}
 	}
 	private: System::Void button7_Click(System::Object^ sender, System::EventArgs^ e) {
+		
 		toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
 		toolStripStatusLabel4->Text = "Ready";
+		TCHAR szFolderPath[MAX_PATH];
+		BROWSEINFO browseInfo = { 0 };
+		browseInfo.hwndOwner = NULL;
+		browseInfo.pidlRoot = NULL;
+		browseInfo.pszDisplayName = szFolderPath;
+		browseInfo.lpszTitle = _T("Select File or Folder");
+		browseInfo.ulFlags = BIF_RETURNONLYFSDIRS | BIF_USENEWUI | BIF_BROWSEINCLUDEFILES;
+
+		LPITEMIDLIST lpItemIDList = SHBrowseForFolder(&browseInfo);
+		if (lpItemIDList != NULL)
+		{
+			SHGetPathFromIDList(lpItemIDList, szFolderPath);
+			IMalloc* pIMalloc = NULL;
+			if (SUCCEEDED(SHGetMalloc(&pIMalloc)))
+			{
+				pIMalloc->Free(lpItemIDList);
+				pIMalloc->Release();
+			}
+			
+		}
+		String^ path_to_first_table = textBox1->Text;
+		String^ path_to_second_table = msclr::interop::marshal_as<String^>(szFolderPath);
+		New::Compare^ f = gcnew New::Compare(gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid), path_to_first_table, path_to_second_table);
+		f->ShowDialog();
 	}
 	private: System::Void backgroundWorker1_DoWork(System::Object^ sender, System::ComponentModel::DoWorkEventArgs^ e) {
 		toolStripStatusLabel4->Text = "Running";
@@ -1775,6 +1952,20 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 		for (int i = 0; i < 7; i++)
 			sum += check_box[i];
 		if (!dataGridView1->ColumnCount) return;
+		struct stat s;
+		pin_ptr<const wchar_t> wname;
+		try {
+			wname = PtrToStringChars(textBox1->Text);
+		}
+		catch (ArgumentOutOfRangeException^) {
+			return;
+		}
+		char Path[256];
+		sprintf(Path, "%ws", wname);
+		if (stat(Path, &s) == 0 && s.st_mode & S_IFDIR) {
+			dataGridView1->Columns[0]->Width = dataGridView1->Width;
+			return;
+		}
 		if (check_box[0] == true) {
 			if (sum > 1) {
 				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.35;
@@ -1841,7 +2032,8 @@ private: System::Void deselectAllToolStripMenuItem_Click(System::Object^ sender,
 	dataGridView1->ClearSelection();
 }
 private: System::Void exportTableToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-	export_selected_items(true);
+	if(dataGridView1->Visible==true)
+		export_selected_items(true);
 }
 private: System::Void runAsAdministratorToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 	std::vector<TOKEN_ELEVATION> tokenElevation(1);
@@ -1882,19 +2074,26 @@ private: System::Void runAsAdministratorToolStripMenuItem_Click(System::Object^ 
 	}
 }
 private: System::Void toolStripMenuItem1_Click(System::Object^ sender, System::EventArgs^ e) {
+	if (dataGridView1->SelectedCells->Count == 0)
+		return;
 	copy();
 }
 private: System::Void refreshToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+	dataGridView1->ClearSelection();
 	refresh();
+	dataGridView1->ClearSelection();
 }
 private: System::Void exportToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+	if (dataGridView1->SelectedCells->Count == 0)
+		return;
 	export_selected_items(false);
 }
 private: System::Void exportSelectedItemsToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-	export_selected_items(false);
+	if (dataGridView1->Visible == true)
+		export_selected_items(false);
 }
 private: System::Void openToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-	if (dataGridView1->SelectedCells[0]->ColumnIndex != 0)
+	if (dataGridView1->SelectedCells->Count==0||dataGridView1->SelectedCells[0]->ColumnIndex != 0)
 		return;
 	System::Object^ tmp = dataGridView1->SelectedCells[0]->Value;
 	struct stat s;
@@ -1967,15 +2166,25 @@ private: System::Void openToolStripMenuItem_Click(System::Object^ sender, System
 	}
 }
 private: System::Void deleteToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-	//добавить подтверждение - messagebox
-	delete_selected_items();
+	//добавить подтверждение - messagebox - кнопки на английском
+	if (dataGridView1->SelectedCells->Count == 0 || dataGridView1->SelectedCells[0]->ColumnIndex != 0)
+		return;
+	System::Windows::Forms::DialogResult result=MessageBox::Show("Delete selected items?", "Confirmation",
+		MessageBoxButtons::YesNo, MessageBoxIcon::Exclamation);
+	if(result== System::Windows::Forms::DialogResult::Yes)
+		delete_selected_items();
 }
 private: System::Void deleteSelectedItemsToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 	//добавить подтверждение - messagebox
-	delete_selected_items();
+	if (dataGridView1->Visible != true|| dataGridView1->SelectedCells->Count == 0 || dataGridView1->SelectedCells[0]->ColumnIndex != 0)
+		return;
+	System::Windows::Forms::DialogResult result = MessageBox::Show("Delete selected items?", "Confirmation",
+		MessageBoxButtons::YesNo, MessageBoxIcon::Exclamation);
+	if (result == System::Windows::Forms::DialogResult::Yes)
+		delete_selected_items();
 }
 private: System::Void propetiesToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-	if (dataGridView1->SelectedCells->Count!=1&&dataGridView1->SelectedCells[0]->ColumnIndex != 0)
+	if (dataGridView1->SelectedCells->Count==0||dataGridView1->SelectedCells[0]->ColumnIndex != 0)
 		return;
 	System::Object^ tmp = dataGridView1->SelectedCells[0]->Value;
 	struct stat s;
@@ -1998,6 +2207,21 @@ private: System::Void propetiesToolStripMenuItem_Click(System::Object^ sender, S
 		shellInfo.nShow = SW_SHOW;
 		ShellExecuteEx(&shellInfo);
 	}
+}
+private: System::Void firstStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+	textBox1->Text = firstStripMenuItem->Text;
+}
+private: System::Void secondStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+	textBox1->Text = secondStripMenuItem->Text;
+}
+private: System::Void thirdStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+	textBox1->Text = thirdStripMenuItem->Text;
+}
+private: System::Void fourthStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+	textBox1->Text = fourthStripMenuItem->Text;
+}
+private: System::Void fifthStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+	textBox1->Text = fifthStripMenuItem->Text;
 }
 };
 }

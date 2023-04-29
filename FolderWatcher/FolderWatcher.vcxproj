@@ -160,6 +160,7 @@ copy "$(SolutionDir)"Dependencies\Interop\Interop.Microsoft.Office.Interop.Excel
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Compare.cpp" />
     <ClCompile Include="directories.cpp" />
     <ClCompile Include="Form_Journal.cpp" />
     <ClCompile Include="hash.cpp">
@@ -180,6 +181,7 @@ copy "$(SolutionDir)"Dependencies\Interop\Interop.Microsoft.Office.Interop.Excel
   <ItemGroup>
     <ClInclude Include="..\..\FolderWatcher\FolderWatcher\globals.h" />
     <ClInclude Include="backend.h" />
+    <ClInclude Include="Compare.h" />
     <ClInclude Include="directories.h" />
     <ClInclude Include="Form_Journal.h" />
     <ClInclude Include="hash.h" />
@@ -195,6 +197,7 @@ copy "$(SolutionDir)"Dependencies\Interop\Interop.Microsoft.Office.Interop.Excel
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Compare.resx" />
     <EmbeddedResource Include="MyForm.resx">
       <DependentUpon>MyForm.h</DependentUpon>
       <LogicalName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Example.MyForm.resources</LogicalName>
