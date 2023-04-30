@@ -1,5 +1,5 @@
 #pragma once
-#include<iostream>
+
 namespace New {
 
 	using namespace System;

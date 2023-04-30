@@ -19,14 +19,8 @@
     <ClInclude Include="MyForm.h">
       <Filter>Frontend</Filter>
     </ClInclude>
-    <ClInclude Include="directories.h">
-      <Filter>Backend</Filter>
-    </ClInclude>
     <ClInclude Include="hash.h">
       <Filter>Hash</Filter>
-    </ClInclude>
-    <ClInclude Include="backend.h">
-      <Filter>Backend</Filter>
     </ClInclude>
     <ClInclude Include="Parameters.h">
       <Filter>Frontend</Filter>
@@ -40,6 +34,9 @@
     <ClInclude Include="Compare.h">
       <Filter>Frontend</Filter>
     </ClInclude>
+    <ClInclude Include="includes_collection.h">
+      <Filter>Backend</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MyForm.cpp">
@@ -48,10 +45,7 @@
     <ClCompile Include="hash.cpp">
       <Filter>Hash</Filter>
     </ClCompile>
-    <ClCompile Include="backend.cpp">
-      <Filter>Backend</Filter>
-    </ClCompile>
-    <ClCompile Include="directories.cpp">
+    <ClCompile Include="make_snapshot.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
     <ClCompile Include="Form_Journal.cpp">
@@ -62,6 +56,12 @@
     </ClCompile>
     <ClCompile Include="Compare.cpp">
       <Filter>Frontend</Filter>
+    </ClCompile>
+    <ClCompile Include="compare_snapshot.cpp">
+      <Filter>Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="show_snapshot.cpp">
+      <Filter>Backend</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

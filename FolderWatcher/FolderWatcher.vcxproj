@@ -161,7 +161,8 @@ copy "$(SolutionDir)"Dependencies\Interop\Interop.Microsoft.Office.Interop.Excel
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Compare.cpp" />
-    <ClCompile Include="directories.cpp" />
+    <ClCompile Include="compare_snapshot.cpp" />
+    <ClCompile Include="make_snapshot.cpp" />
     <ClCompile Include="Form_Journal.cpp" />
     <ClCompile Include="hash.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -175,16 +176,15 @@ copy "$(SolutionDir)"Dependencies\Interop\Interop.Microsoft.Office.Interop.Excel
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="backend.cpp" />
     <ClCompile Include="Parameters.cpp" />
+    <ClCompile Include="show_snapshot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\FolderWatcher\FolderWatcher\globals.h" />
-    <ClInclude Include="backend.h" />
     <ClInclude Include="Compare.h" />
-    <ClInclude Include="directories.h" />
     <ClInclude Include="Form_Journal.h" />
     <ClInclude Include="hash.h" />
+    <ClInclude Include="includes_collection.h" />
     <ClInclude Include="MyForm.h">
       <FileType>CppForm</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>

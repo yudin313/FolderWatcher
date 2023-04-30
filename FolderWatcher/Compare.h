@@ -1,8 +1,6 @@
 #pragma once
-#include<Windows.h>
-#include<vcclr.h>
-#include"globals.h"
 
+#include "globals.h"
 
 namespace New {
 
