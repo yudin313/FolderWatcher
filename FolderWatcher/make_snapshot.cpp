@@ -5,9 +5,6 @@ namespace fs = std::filesystem;
 int check_unlimited = 0; //проверка, что переменная глубина unlimited
 int start_lenth_name = 0; //индекс, с которого сохранять путь до файла
 
-TCHAR* szPath;
-TCHAR* szPath_copy;
-
 
 /////////////// определение объекта работы //////////////
 
@@ -39,7 +36,7 @@ void if_file(char* NAME, FILE* output_file)
     struct stat buf;
     int64_t _file_size = 0;
 
-    FILE* file_write = _wfopen(szPath, TEXT("w"));
+    FILE* file_write = _wfopen(SnapShotPath, TEXT("w"));
 
     //следующие две строчки нужны для перевода char* в LPCWSTR
     wchar_t* wString = new wchar_t[4096];
@@ -192,25 +189,9 @@ void if_file(char* NAME, FILE* output_file)
 
     fclose(file_write);
 
-    hashes_file(szPath, szPath_copy, NAME); //собираем хэши
+    hashes_file(SnapShotPath, output_file, NAME); //собираем хэши
 
-    //записываем полученные хэши в snapshot
-    FILE* file_read = _wfopen(szPath_copy, TEXT("r"));
-    char hash[4096];
-    fgets(hash, 82, file_read);
-    fprintf(output_file, "%s", hash);
-    fgets(hash, 146, file_read);
-    fprintf(output_file, "%s", hash);
-    fgets(hash, 148, file_read);
-    fprintf(output_file, "%s", hash);
-    fgets(hash, 78, file_read);
-    fprintf(output_file, "%s", hash);
-    fgets(hash, 142, file_read);
-    fprintf(output_file, "%s", hash);
-    fgets(hash, 143, file_read);
-    fprintf(output_file, "%s\n", hash);
-    fclose(file_read);
-
+    return;
 }
 
 /////////////////////////////////////////////////////////
@@ -231,10 +212,12 @@ void if_folder(char* NAME, int depth_no_global, FILE* output_file)
         if (is_file_or_folder(file) == _FILE) {
             if_file(file, output_file);
         }
-        else if (depth_no_global!=-1 || check_unlimited) { //если не конец глубины 
+        else if (depth_no_global != -1 || check_unlimited) { //если не конец глубины
             if_folder(file, depth_no_global, output_file);
         }
     }
+
+    return;
 }
 
 /////////////////////////////////////////////////////////
@@ -256,31 +239,11 @@ void file_information(char* NAME, char* NAME_EXIT)
     fprintf(output_file, "%c", (check_box[5]) ? '1' : '0');
     fprintf(output_file, "%c\n", (check_box[6]) ? '1' : '0'); //список параметров: 1 - есть параметр, 2 - нет параметра. Соответсвенное расположению в check_box
 
-    szPath = new TCHAR[1024];
-
-    if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, szPath)))
-    {
-        wcsncpy(szPath + wcslen(szPath), TEXT("\\FolderWatcher"), 15);
-    }
-
-    DWORD dwAttrib = GetFileAttributes(szPath);
-
-    if (!(dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY))) {
-        CreateDirectory(szPath, NULL);
-    }
-
-    szPath_copy = new TCHAR[1024];
-    wcsncpy(szPath_copy, szPath, 1024);
-    wcsncpy(szPath + wcslen(szPath), TEXT("\\snap.txt"), 10);
-    wcsncpy(szPath_copy + wcslen(szPath_copy), TEXT("\\hash.txt"), 10);
-
     int depth_no_global = depth; //переменная, отвечающая за глубину в данном файле, чтобы не менять глобальную
 
     start_lenth_name = strlen(NAME);
 
-    //int depth_no_global = _UNLIMITED; //пример для UNLIMITED глубины
-
-    if (depth_no_global == _UNLIMITED) //проверка, что переменная unlimited
+    if (depth_no_global == 0) //проверка, что переменная unlimited
         check_unlimited = 1; // если unlimited
 
     depth_no_global--; //уменьшаем глубину, если папка
@@ -288,13 +251,9 @@ void file_information(char* NAME, char* NAME_EXIT)
 
     fprintf(output_file, "%c%c%c%c%c%c\n", 7, 3, 5, 9, 2, 7);
 
-    DeleteFile(szPath);
-    DeleteFile(szPath_copy);
-
-    delete[] szPath_copy;
-    delete[] szPath;
-
     fclose(output_file);
+
+    return;
 }
 
 /////////////////////////////////////////////////////////

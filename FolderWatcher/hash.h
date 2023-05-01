@@ -11,4 +11,4 @@
 #include <openssl/evp.h> //for all other OpenSSL function calls
 #include <openssl/sha.h>
 
-int hashes_file(TCHAR*, TCHAR*, char*);
+int hashes_file(TCHAR*, FILE*, char*);

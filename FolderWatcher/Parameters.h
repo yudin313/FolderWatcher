@@ -213,7 +213,7 @@ namespace New {
 			this->checkBox8->Name = L"checkBox8";
 			this->checkBox8->Size = System::Drawing::Size(166, 22);
 			this->checkBox8->TabIndex = 27;
-			this->checkBox8->Text = L"Scan SubDirectories";
+			this->checkBox8->Text = L"Subfolders depth";
 			this->checkBox8->UseVisualStyleBackColor = true;
 			this->checkBox8->CheckedChanged += gcnew System::EventHandler(this, &Parameters::checkBox8_CheckedChanged);
 			if (depth != 0)
@@ -323,5 +323,9 @@ namespace New {
 	}
 	private: System::Void Parameters_Load(System::Object^ sender, System::EventArgs^ e) {
 	}
+private: System::Void Parameters_Load_1(System::Object^ sender, System::EventArgs^ e) {
+}
+private: System::Void Parameters_Load_2(System::Object^ sender, System::EventArgs^ e) {
+}
 };
 }

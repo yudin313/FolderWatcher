@@ -60,7 +60,7 @@
     <ClCompile Include="compare_snapshot.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
-    <ClCompile Include="show_snapshot.cpp">
+    <ClCompile Include="Setup.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
   </ItemGroup>

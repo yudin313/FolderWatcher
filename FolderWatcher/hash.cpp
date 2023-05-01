@@ -99,15 +99,11 @@ inline std::string SHA512(char* path)
     return os.str();
 }
 
-int hashes_file(TCHAR* snap_path, TCHAR* hash_path, char* file_path)
+int hashes_file(TCHAR* snap_path, FILE* hash_path, char* file_path)
 {
     char* char_snap_path = new char[1024];
-    char* char_hash_path = new char[1024];
     wcstombs(char_snap_path, snap_path, 1024);
-    wcstombs(char_hash_path, hash_path, 1024);
 
-    std::ofstream fout;
-    fout.open(char_hash_path, std::ios::out);
     std::string s;
 
     std::ifstream fp1(char_snap_path);
@@ -115,10 +111,10 @@ int hashes_file(TCHAR* snap_path, TCHAR* hash_path, char* file_path)
     fp1.close();
 
     try {
-        fout << "SHA256-snapshot:" << SHA256(char_snap_path) << std::endl;
-        fout << "SHA512-snapshot:" << SHA512(char_snap_path) << std::endl;
+        fprintf(hash_path, "SHA256-snapshot: %s\n", SHA256(char_snap_path).c_str());
+        fprintf(hash_path, "SHA512-snapshot: %s\n", SHA512(char_snap_path).c_str());
         std::string output = sha3_512(s);
-        fout << "SHA3-512-snapshot:" << output << std::endl;
+        fprintf(hash_path, "SHA3-512-snapshot: %s\n", output.c_str());
     }
     catch (const std::exception& e) {
         std::cerr << "[fatal] " << e.what() << std::endl;
@@ -129,18 +125,15 @@ int hashes_file(TCHAR* snap_path, TCHAR* hash_path, char* file_path)
     fp2.close();
 
     try {
-        fout << "SHA256-file:" << SHA256(file_path) << std::endl;
-        fout << "SHA512-file:" << SHA512(file_path) << std::endl;
+        fprintf(hash_path, "SHA256-file: %s\n", SHA256(file_path).c_str());
+        fprintf(hash_path, "SHA512-file: %s\n", SHA512(file_path).c_str());
         std::string output = sha3_512(s);
-        fout << "SHA3-512-file:" << output << std::endl;
+        fprintf(hash_path, "SHA3-512-file: %s\n", output.c_str());
     }
     catch (const std::exception& e) {
         std::cerr << "[fatal] " << e.what() << std::endl;
     }
 
-    fout.close();
-
-    delete[] char_hash_path;
     delete[] char_snap_path;
 
     return EXIT_SUCCESS;

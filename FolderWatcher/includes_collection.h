@@ -18,12 +18,14 @@
 
 #define _UNLIMITED -1
 
+extern TCHAR* FolderWatcherPath;
+extern TCHAR* SnapShotPath;
+extern TCHAR* TempSnapShot1;
+extern TCHAR* TempSnapShot2;
+void setup(void);
+void deinit(void);
+
 void file_information(char*, char*);
 int is_file_or_folder(char*);
 
-int show_snapshot(TCHAR*);
-
-int compare(char*, char*);
-
-//show_snapshot("C:\\Users\\DELL\\OneDrive\\Документы\\FolderWatcher\\output.txt");
-//compare("D:\\Background2\\output.txt", "D:\\3rd semester");
+void next_file(FILE* file_read);

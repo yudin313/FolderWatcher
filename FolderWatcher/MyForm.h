@@ -1309,7 +1309,7 @@ namespace Example {
 			this->tableLayoutPanel7->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent,
 				89.32039F)));
 			this->tableLayoutPanel7->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Absolute,
-				381)));
+				388)));
 			this->tableLayoutPanel7->Controls->Add(this->panel2, 1, 0);
 			this->tableLayoutPanel7->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->tableLayoutPanel7->Location = System::Drawing::Point(2, 429);
@@ -1326,11 +1326,11 @@ namespace Example {
 			this->panel2->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
 			this->panel2->Controls->Add(this->tableLayoutPanel9);
 			this->panel2->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->panel2->Location = System::Drawing::Point(60, 2);
+			this->panel2->Location = System::Drawing::Point(59, 2);
 			this->panel2->Margin = System::Windows::Forms::Padding(2);
 			this->panel2->MaximumSize = System::Drawing::Size(750, 122);
 			this->panel2->Name = L"panel2";
-			this->panel2->Size = System::Drawing::Size(486, 57);
+			this->panel2->Size = System::Drawing::Size(480, 57);
 			this->panel2->TabIndex = 17;
 			// 
 			// tableLayoutPanel9
@@ -1519,12 +1519,117 @@ namespace Example {
 			textBox1->Text = openFileDialog1->FileName;
 			//заполнение таблицы из слепка
 
-			//dataGridView1->Columns->Add("Test", "Test");
-			//dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.35;
-			//dataGridView1->Columns->Add("One more", "One more");
-			//dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.35;
-
 			dataGridView1->Rows->Clear();
+			dataGridView1->Columns->Clear();
+
+			std::string temp = msclr::interop::marshal_as<std::string>(openFileDialog1->FileName);
+			char* snapshot = new char[temp.length() + 1];
+			strcpy(snapshot, temp.c_str());
+
+			//перенес бэкенд сюда - было самым простым решением
+
+			FILE* file_read = fopen(snapshot, "r");
+			char* stroka = new char[4096];
+
+			int col_cnt = 0;
+
+			fgets(stroka, 8, file_read);
+			if (stroka[0] == 7 && stroka[1] == 3 && stroka[2] == 5 && stroka[3] == 9 && stroka[4] == 2 && stroka[5] == 7 && stroka[6] == '\n') {
+				fgets(stroka, 9, file_read);
+				for (int i = 0; i < 7; i++) {
+					if (stroka[i] == '1')
+						check_box[i] = true;
+					else
+						check_box[i] = false;
+				}
+
+				Add_Column_Headers();
+
+				int row_cnt = 0;
+				int col_cnt = 0;
+
+				for (;;) {
+					col_cnt = 0;
+
+					fgets(stroka, 4096, file_read);
+					//проверка на конец файла
+					if (strlen(stroka) == 7 && stroka[0] == 7 && stroka[1] == 3 && stroka[2] == 5 && stroka[3] == 9 && stroka[4] == 2 && stroka[5] == 7 && stroka[6] == '\n')
+						break;
+
+					dataGridView1->Rows->Add();
+
+					// имя
+					if (check_box[0]) {
+						stroka[strlen(stroka) - 1] = 0;
+						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka);
+						col_cnt++;
+					}
+
+					//размер
+					fgets(stroka, 4096, file_read);
+					if (check_box[1]) {
+						stroka[strlen(stroka) - 1] = 0;
+						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka);
+						col_cnt++;
+					}
+
+					//атрибуты безопасности
+					fgets(stroka, 4096, file_read);
+					if (check_box[2]) {
+						stroka[strlen(stroka) - 2] = 0;
+						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka);
+						col_cnt++;
+					}
+
+					//альтернативные потоки
+					fgets(stroka, 4096, file_read);
+					if (check_box[3]) {
+						stroka[strlen(stroka) - 2] = 0;
+						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka);
+						col_cnt++;
+					}
+
+					//время1
+					fgets(stroka, 4096, file_read);
+					if (check_box[4]) {
+						stroka[strlen(stroka) - 1] = 0;
+						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka);
+						col_cnt++;
+					}
+
+					//время2
+					fgets(stroka, 4096, file_read);
+					if (check_box[5]) {
+						stroka[strlen(stroka) - 1] = 0;
+						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka);
+						col_cnt++;
+					}
+
+					//время3
+					fgets(stroka, 4096, file_read);
+					if (check_box[6]) {
+						stroka[strlen(stroka) - 1] = 0;
+						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka);
+						col_cnt++;
+					}
+					fgets(stroka, 4096, file_read);
+					fgets(stroka, 4096, file_read);
+					fgets(stroka, 4096, file_read);
+					fgets(stroka, 4096, file_read);
+					fgets(stroka, 4096, file_read);
+					fgets(stroka, 4096, file_read);
+
+					row_cnt++;
+				}
+
+				ChangeMode();
+				dataGridView1->Visible = true;
+				dataGridView1->ClearSelection();
+			}
+			delete[] stroka;
+			fclose(file_read);
+			delete[] snapshot;
+
 			historyToolStripMenuItem->Enabled = true;
 			if (history_count == 0) {
 				firstStripMenuItem->Text = openFileDialog1->FileName;
@@ -1890,8 +1995,10 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 
 		if (result == System::Windows::Forms::DialogResult::OK) {
 			backgroundWorker1->RunWorkerAsync();
+
+			//закоментил ибо бэкграундворкеру нужен путь до папки, а не до слепка
 			//textBox1->Text = SaveFileDialog->FileName;
-			dataGridView1->Rows->Clear();
+
 			//заполнение таблицы из слепка
 			historyToolStripMenuItem->Enabled = true;
 			if (history_count == 0) {
