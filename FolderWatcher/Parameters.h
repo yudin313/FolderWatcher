@@ -96,6 +96,7 @@ namespace New {
 			this->checkBox1->Text = L"File Name";
 			this->checkBox1->UseVisualStyleBackColor = true;
 			this->checkBox1->Checked = check_box[0];
+			this->checkBox1->Enabled = false;
 			// 
 			// checkBox2
 			// 
@@ -326,6 +327,10 @@ namespace New {
 private: System::Void Parameters_Load_1(System::Object^ sender, System::EventArgs^ e) {
 }
 private: System::Void Parameters_Load_2(System::Object^ sender, System::EventArgs^ e) {
+}
+private: System::Void Parameters_Load_3(System::Object^ sender, System::EventArgs^ e) {
+}
+private: System::Void Parameters_Load_4(System::Object^ sender, System::EventArgs^ e) {
 }
 };
 }

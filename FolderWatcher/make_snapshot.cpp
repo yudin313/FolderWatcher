@@ -71,7 +71,7 @@ void if_file(char* NAME, FILE* output_file)
         fprintf(file_write, "-1\n");
     }
 
-    //атрибуты безопасности
+    //атрибуты
     if (check_box[2]) {
         DWORD dwAttrs;
         dwAttrs = GetFileAttributes(wString);
@@ -132,9 +132,8 @@ void if_file(char* NAME, FILE* output_file)
         if (hFind == INVALID_HANDLE_VALUE) throw ::GetLastError();
 
         for (;;) {
-
-            fprintf(output_file, "%-12I64u%S%S ", fsd.StreamSize, &wString[start_lenth_name], fsd.cStreamName);
-            fprintf(file_write, "%-12I64u%S%S ", fsd.StreamSize, &wString[start_lenth_name], fsd.cStreamName);
+            fprintf(output_file, "%I64u-%S%S ", fsd.StreamSize, &wString[start_lenth_name], fsd.cStreamName);
+            fprintf(file_write, "%I64u-%S%S ", fsd.StreamSize, &wString[start_lenth_name], fsd.cStreamName);
             if (!::FindNextStreamW(hFind, &fsd)) {
                 DWORD dr = ::GetLastError();
                 if (dr != ERROR_HANDLE_EOF) throw dr;
@@ -257,3 +256,20 @@ void file_information(char* NAME, char* NAME_EXIT)
 }
 
 /////////////////////////////////////////////////////////
+
+void next_file(FILE* file_read)
+{
+    char stro[4096];
+    fgets(stro, 4096, file_read);
+    fgets(stro, 4096, file_read);
+    fgets(stro, 4096, file_read);
+    fgets(stro, 4096, file_read);
+    fgets(stro, 4096, file_read);
+    fgets(stro, 4096, file_read);
+    fgets(stro, 4096, file_read);
+    fgets(stro, 4096, file_read);
+    fgets(stro, 4096, file_read);
+    fgets(stro, 4096, file_read);
+    fgets(stro, 4096, file_read);
+    fgets(stro, 4096, file_read);
+}

@@ -161,7 +161,6 @@ copy "$(SolutionDir)"Dependencies\Interop\Interop.Microsoft.Office.Interop.Excel
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Compare.cpp" />
-    <ClCompile Include="compare_snapshot.cpp" />
     <ClCompile Include="make_snapshot.cpp" />
     <ClCompile Include="Form_Journal.cpp" />
     <ClCompile Include="hash.cpp">
@@ -239,6 +238,14 @@ copy "$(SolutionDir)"Dependencies\Interop\Interop.Microsoft.Office.Interop.Excel
       <Isolated>false</Isolated>
       <EmbedInteropTypes>true</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="DLYAEGORA.txt">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Text>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

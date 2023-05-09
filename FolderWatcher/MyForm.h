@@ -12,8 +12,6 @@ bool button5_first = 0;
 bool button5_first_click = 0;
 char* save_path;
 char* last_saved_path;
-bool parameters_flag = true;
-int history_count = 0;
 namespace Example {
 
 	using namespace System;
@@ -51,7 +49,6 @@ namespace Example {
 	private: System::Windows::Forms::ToolStripMenuItem^ refreshToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ exportToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ propetiesToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^ historyToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ firstStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ secondStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ thirdStripMenuItem;
@@ -209,18 +206,13 @@ namespace Example {
 		void refresh() {
 			toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
 			toolStripStatusLabel4->Text = "Ready";
-			if (textBox1->Text == "") {
-				MessageBox::Show("Путь к каталогу не выбран", "Информация",
-					MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+			if (textBox1->Text == "")
 				return;
-			}
 			listBox2->Items->Clear();
 			dataGridView1->Rows->Clear();
-			if (parameters_flag) {
-				dataGridView1->Columns->Clear();
-				Add_Column_Headers();
-				parameters_flag = false;
-			}
+			dataGridView1->Columns->Clear();
+
+			Add_Column_Headers();
 
 			WIN32_FIND_DATAW wfd;
 			pin_ptr<const wchar_t> wname = PtrToStringChars(textBox1->Text + "\\*");
@@ -314,66 +306,38 @@ namespace Example {
 			int sum = 0;
 			for (int i = 0; i < 7; i++)
 				sum += check_box[i];
-			if (check_box[0] == true) {
-				if (sum > 1) {
-					dataGridView1->Columns->Add("FileName", "File Name");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.35;
-					sum--;
-					if (check_box[1] == true) {
-						dataGridView1->Columns->Add("Size", "Size");
-						dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
-					}
-					if (check_box[2] == true) {
-						dataGridView1->Columns->Add("Attributes", "Attributes");
-						dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
-					}
-					if (check_box[3] == true) {
-						dataGridView1->Columns->Add("Streams", "Streams");
-						dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
-					}
-					if (check_box[4] == true) {
-						dataGridView1->Columns->Add("CreationTime", "Creation Time");
-						dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
-					}
-					if (check_box[5] == true) {
-						dataGridView1->Columns->Add("ModificationTime", "Modification Time");
-						dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
-					}
-					if (check_box[6] == true) {
-						dataGridView1->Columns->Add("AccessTime", "Access Time");
-						dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
-					}
-				}
-				else {
-					dataGridView1->Columns->Add("FileName", "File Name");
-					dataGridView1->Columns[0]->Width = dataGridView1->Width;
-				}
-			}
-			else {
+			if (sum > 1) {
+				dataGridView1->Columns->Add("FileName", "File Name");
+				dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.35;
+				sum--;
 				if (check_box[1] == true) {
 					dataGridView1->Columns->Add("Size", "Size");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width / sum;
+					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
 				}
 				if (check_box[2] == true) {
 					dataGridView1->Columns->Add("Attributes", "Attributes");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width / sum;
+					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
 				}
 				if (check_box[3] == true) {
 					dataGridView1->Columns->Add("Streams", "Streams");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width / sum;
+					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
 				}
 				if (check_box[4] == true) {
 					dataGridView1->Columns->Add("CreationTime", "Creation Time");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width / sum;
+					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
 				}
 				if (check_box[5] == true) {
 					dataGridView1->Columns->Add("ModificationTime", "Modification Time");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width / sum;
+					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
 				}
 				if (check_box[6] == true) {
 					dataGridView1->Columns->Add("AccessTime", "Access Time");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width / sum;
+					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
 				}
+			}
+			else {
+				dataGridView1->Columns->Add("FileName", "File Name");
+				dataGridView1->Columns[0]->Width = dataGridView1->Width;
 			}
 		}
 		void ChangeMode() {
@@ -485,33 +449,12 @@ namespace Example {
 	private: System::Windows::Forms::Button^ button7;
 
 
-
-
-
-
-
-
 	private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel4;
 	private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel5;
 
 
-
-
-
-
 	private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel6;
 	private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel7;
-
-
-
-
-
-
-
-
-
-
-
 
 
 	private: System::Windows::Forms::TableLayoutPanel^ tableLayoutPanel9;
@@ -537,11 +480,6 @@ namespace Example {
 	private: System::Windows::Forms::ToolStripMenuItem^ deleteSelectedItemsToolStripMenuItem;
 
 
-
-
-
-
-
 	private: System::ComponentModel::IContainer^ components;
 
 	protected:
@@ -561,22 +499,15 @@ namespace Example {
 		void InitializeComponent(void)
 		{
 			this->components = (gcnew System::ComponentModel::Container());
-			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle1 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
-			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle2 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
-			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle3 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
-			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle4 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
-			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle5 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
-			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
+			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle6 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle7 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle8 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle9 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle10 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
 			this->folderBrowserDialog1 = (gcnew System::Windows::Forms::FolderBrowserDialog());
 			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
 			this->fileToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->parametersToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->historyToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->firstStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->secondStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->thirdStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->fourthStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->fifthStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->viewToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->selectAllToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -593,6 +524,11 @@ namespace Example {
 			this->helpToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->contentToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->infoToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->firstStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->secondStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->thirdStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->fourthStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->fifthStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
 			this->contextMenuStrip1 = (gcnew System::Windows::Forms::ContextMenuStrip(this->components));
@@ -664,9 +600,9 @@ namespace Example {
 			// 
 			// fileToolStripMenuItem
 			// 
-			this->fileToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
+			this->fileToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
 				this->parametersToolStripMenuItem,
-					this->historyToolStripMenuItem, this->exitToolStripMenuItem
+					this->exitToolStripMenuItem
 			});
 			this->fileToolStripMenuItem->Name = L"fileToolStripMenuItem";
 			this->fileToolStripMenuItem->Size = System::Drawing::Size(37, 20);
@@ -675,62 +611,14 @@ namespace Example {
 			// parametersToolStripMenuItem
 			// 
 			this->parametersToolStripMenuItem->Name = L"parametersToolStripMenuItem";
-			this->parametersToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::P));
-			this->parametersToolStripMenuItem->Size = System::Drawing::Size(174, 22);
+			this->parametersToolStripMenuItem->Size = System::Drawing::Size(133, 22);
 			this->parametersToolStripMenuItem->Text = L"Parameters";
 			this->parametersToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::parametersToolStripMenuItem_Click);
-			// 
-			// historyToolStripMenuItem
-			// 
-			this->historyToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(5) {
-				this->firstStripMenuItem,
-					this->secondStripMenuItem, this->thirdStripMenuItem, this->fourthStripMenuItem, this->fifthStripMenuItem
-			});
-			this->historyToolStripMenuItem->Enabled = false;
-			this->historyToolStripMenuItem->Name = L"historyToolStripMenuItem";
-			this->historyToolStripMenuItem->Size = System::Drawing::Size(174, 22);
-			this->historyToolStripMenuItem->Text = L"History";
-			// 
-			// firstStripMenuItem
-			// 
-			this->firstStripMenuItem->Name = L"firstStripMenuItem";
-			this->firstStripMenuItem->Size = System::Drawing::Size(67, 22);
-			this->firstStripMenuItem->Visible = false;
-			this->firstStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::firstStripMenuItem_Click);
-			// 
-			// secondStripMenuItem
-			// 
-			this->secondStripMenuItem->Name = L"secondStripMenuItem";
-			this->secondStripMenuItem->Size = System::Drawing::Size(67, 22);
-			this->secondStripMenuItem->Visible = false;
-			this->secondStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::secondStripMenuItem_Click);
-			// 
-			// thirdStripMenuItem
-			// 
-			this->thirdStripMenuItem->Name = L"thirdStripMenuItem";
-			this->thirdStripMenuItem->Size = System::Drawing::Size(67, 22);
-			this->thirdStripMenuItem->Visible = false;
-			this->thirdStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::thirdStripMenuItem_Click);
-			// 
-			// fourthStripMenuItem
-			// 
-			this->fourthStripMenuItem->Name = L"fourthStripMenuItem";
-			this->fourthStripMenuItem->Size = System::Drawing::Size(67, 22);
-			this->fourthStripMenuItem->Visible = false;
-			this->fourthStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::fourthStripMenuItem_Click);
-			// 
-			// fifthStripMenuItem
-			// 
-			this->fifthStripMenuItem->Name = L"fifthStripMenuItem";
-			this->fifthStripMenuItem->Size = System::Drawing::Size(67, 22);
-			this->fifthStripMenuItem->Visible = false;
-			this->fifthStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::fifthStripMenuItem_Click);
 			// 
 			// exitToolStripMenuItem
 			// 
 			this->exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
-			this->exitToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Alt | System::Windows::Forms::Keys::F4));
-			this->exitToolStripMenuItem->Size = System::Drawing::Size(174, 22);
+			this->exitToolStripMenuItem->Size = System::Drawing::Size(133, 22);
 			this->exitToolStripMenuItem->Text = L"Exit";
 			this->exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::exitToolStripMenuItem_Click);
 			// 
@@ -749,7 +637,7 @@ namespace Example {
 			// 
 			this->selectAllToolStripMenuItem->Name = L"selectAllToolStripMenuItem";
 			this->selectAllToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::A));
-			this->selectAllToolStripMenuItem->Size = System::Drawing::Size(226, 22);
+			this->selectAllToolStripMenuItem->Size = System::Drawing::Size(187, 22);
 			this->selectAllToolStripMenuItem->Text = L"Select All";
 			this->selectAllToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::selectAllToolStripMenuItem_Click);
 			// 
@@ -757,7 +645,7 @@ namespace Example {
 			// 
 			this->deselectAllToolStripMenuItem->Name = L"deselectAllToolStripMenuItem";
 			this->deselectAllToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::D));
-			this->deselectAllToolStripMenuItem->Size = System::Drawing::Size(226, 22);
+			this->deselectAllToolStripMenuItem->Size = System::Drawing::Size(187, 22);
 			this->deselectAllToolStripMenuItem->Text = L"Deselect All";
 			this->deselectAllToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::deselectAllToolStripMenuItem_Click);
 			// 
@@ -767,9 +655,8 @@ namespace Example {
 			this->showToolTipsToolStripMenuItem->CheckOnClick = true;
 			this->showToolTipsToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
 			this->showToolTipsToolStripMenuItem->Name = L"showToolTipsToolStripMenuItem";
-			this->showToolTipsToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Alt | System::Windows::Forms::Keys::T));
-			this->showToolTipsToolStripMenuItem->Size = System::Drawing::Size(226, 22);
-			this->showToolTipsToolStripMenuItem->Text = L"Show ToolTips";
+			this->showToolTipsToolStripMenuItem->Size = System::Drawing::Size(187, 22);
+			this->showToolTipsToolStripMenuItem->Text = L"Show Tooltips";
 			this->showToolTipsToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::showToolTipsToolStripMenuItem_Click);
 			// 
 			// showGridLinesToolStripMenuItem
@@ -778,17 +665,15 @@ namespace Example {
 			this->showGridLinesToolStripMenuItem->CheckOnClick = true;
 			this->showGridLinesToolStripMenuItem->CheckState = System::Windows::Forms::CheckState::Checked;
 			this->showGridLinesToolStripMenuItem->Name = L"showGridLinesToolStripMenuItem";
-			this->showGridLinesToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Alt | System::Windows::Forms::Keys::G));
-			this->showGridLinesToolStripMenuItem->Size = System::Drawing::Size(226, 22);
-			this->showGridLinesToolStripMenuItem->Text = L"Show GridLines";
+			this->showGridLinesToolStripMenuItem->Size = System::Drawing::Size(187, 22);
+			this->showGridLinesToolStripMenuItem->Text = L"Show Grid Lines";
 			this->showGridLinesToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::showGridLinesToolStripMenuItem_Click);
 			// 
 			// hightlightEvenRowsToolStripMenuItem
 			// 
 			this->hightlightEvenRowsToolStripMenuItem->CheckOnClick = true;
 			this->hightlightEvenRowsToolStripMenuItem->Name = L"hightlightEvenRowsToolStripMenuItem";
-			this->hightlightEvenRowsToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Alt | System::Windows::Forms::Keys::H));
-			this->hightlightEvenRowsToolStripMenuItem->Size = System::Drawing::Size(226, 22);
+			this->hightlightEvenRowsToolStripMenuItem->Size = System::Drawing::Size(187, 22);
 			this->hightlightEvenRowsToolStripMenuItem->Text = L"Hightlight Even Rows";
 			this->hightlightEvenRowsToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::hightlightEvenRowsToolStripMenuItem_Click);
 			// 
@@ -796,8 +681,7 @@ namespace Example {
 			// 
 			this->darkModeToolStripMenuItem->CheckOnClick = true;
 			this->darkModeToolStripMenuItem->Name = L"darkModeToolStripMenuItem";
-			this->darkModeToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Alt | System::Windows::Forms::Keys::D));
-			this->darkModeToolStripMenuItem->Size = System::Drawing::Size(226, 22);
+			this->darkModeToolStripMenuItem->Size = System::Drawing::Size(187, 22);
 			this->darkModeToolStripMenuItem->Text = L"Dark Mode";
 			this->darkModeToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::darkModeToolStripMenuItem_Click);
 			// 
@@ -814,8 +698,7 @@ namespace Example {
 			// runAsAdministratorToolStripMenuItem
 			// 
 			this->runAsAdministratorToolStripMenuItem->Name = L"runAsAdministratorToolStripMenuItem";
-			this->runAsAdministratorToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>(((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Shift)
-				| System::Windows::Forms::Keys::A));
+			this->runAsAdministratorToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::F11));
 			this->runAsAdministratorToolStripMenuItem->Size = System::Drawing::Size(259, 22);
 			this->runAsAdministratorToolStripMenuItem->Text = L"Run as Administrator";
 			this->runAsAdministratorToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::runAsAdministratorToolStripMenuItem_Click);
@@ -831,7 +714,8 @@ namespace Example {
 			// exportSelectedItemsToolStripMenuItem
 			// 
 			this->exportSelectedItemsToolStripMenuItem->Name = L"exportSelectedItemsToolStripMenuItem";
-			this->exportSelectedItemsToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::B));
+			this->exportSelectedItemsToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>(((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Shift)
+				| System::Windows::Forms::Keys::E));
 			this->exportSelectedItemsToolStripMenuItem->Size = System::Drawing::Size(259, 22);
 			this->exportSelectedItemsToolStripMenuItem->Text = L"Export Selected Items";
 			this->exportSelectedItemsToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::exportSelectedItemsToolStripMenuItem_Click);
@@ -868,6 +752,41 @@ namespace Example {
 			this->infoToolStripMenuItem->Text = L"About";
 			this->infoToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::оПрограммеToolStripMenuItem_Click);
 			// 
+			// firstStripMenuItem
+			// 
+			this->firstStripMenuItem->Name = L"firstStripMenuItem";
+			this->firstStripMenuItem->Size = System::Drawing::Size(67, 22);
+			this->firstStripMenuItem->Visible = false;
+			this->firstStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::firstStripMenuItem_Click);
+			// 
+			// secondStripMenuItem
+			// 
+			this->secondStripMenuItem->Name = L"secondStripMenuItem";
+			this->secondStripMenuItem->Size = System::Drawing::Size(67, 22);
+			this->secondStripMenuItem->Visible = false;
+			this->secondStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::secondStripMenuItem_Click);
+			// 
+			// thirdStripMenuItem
+			// 
+			this->thirdStripMenuItem->Name = L"thirdStripMenuItem";
+			this->thirdStripMenuItem->Size = System::Drawing::Size(67, 22);
+			this->thirdStripMenuItem->Visible = false;
+			this->thirdStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::thirdStripMenuItem_Click);
+			// 
+			// fourthStripMenuItem
+			// 
+			this->fourthStripMenuItem->Name = L"fourthStripMenuItem";
+			this->fourthStripMenuItem->Size = System::Drawing::Size(67, 22);
+			this->fourthStripMenuItem->Visible = false;
+			this->fourthStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::fourthStripMenuItem_Click);
+			// 
+			// fifthStripMenuItem
+			// 
+			this->fifthStripMenuItem->Name = L"fifthStripMenuItem";
+			this->fifthStripMenuItem->Size = System::Drawing::Size(67, 22);
+			this->fifthStripMenuItem->Visible = false;
+			this->fifthStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::fifthStripMenuItem_Click);
+			// 
 			// openFileDialog1
 			// 
 			this->openFileDialog1->FileName = L"openFileDialog1";
@@ -876,31 +795,31 @@ namespace Example {
 			// 
 			this->dataGridView1->AllowUserToAddRows = false;
 			this->dataGridView1->AllowUserToDeleteRows = false;
-			dataGridViewCellStyle1->BackColor = System::Drawing::Color::White;
-			this->dataGridView1->AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+			dataGridViewCellStyle6->BackColor = System::Drawing::Color::White;
+			this->dataGridView1->AlternatingRowsDefaultCellStyle = dataGridViewCellStyle6;
 			this->dataGridView1->BackgroundColor = System::Drawing::Color::WhiteSmoke;
 			this->dataGridView1->ColumnHeadersBorderStyle = System::Windows::Forms::DataGridViewHeaderBorderStyle::Single;
-			dataGridViewCellStyle2->Alignment = System::Windows::Forms::DataGridViewContentAlignment::TopLeft;
-			dataGridViewCellStyle2->BackColor = System::Drawing::Color::Silver;
-			dataGridViewCellStyle2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+			dataGridViewCellStyle7->Alignment = System::Windows::Forms::DataGridViewContentAlignment::TopLeft;
+			dataGridViewCellStyle7->BackColor = System::Drawing::Color::Silver;
+			dataGridViewCellStyle7->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			dataGridViewCellStyle2->ForeColor = System::Drawing::SystemColors::WindowText;
-			dataGridViewCellStyle2->SelectionBackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(255)),
+			dataGridViewCellStyle7->ForeColor = System::Drawing::SystemColors::WindowText;
+			dataGridViewCellStyle7->SelectionBackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(255)),
 				static_cast<System::Int32>(static_cast<System::Byte>(192)), static_cast<System::Int32>(static_cast<System::Byte>(128)));
-			dataGridViewCellStyle2->SelectionForeColor = System::Drawing::Color::Gray;
-			dataGridViewCellStyle2->WrapMode = System::Windows::Forms::DataGridViewTriState::False;
-			this->dataGridView1->ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+			dataGridViewCellStyle7->SelectionForeColor = System::Drawing::Color::Gray;
+			dataGridViewCellStyle7->WrapMode = System::Windows::Forms::DataGridViewTriState::False;
+			this->dataGridView1->ColumnHeadersDefaultCellStyle = dataGridViewCellStyle7;
 			this->dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
 			this->dataGridView1->ContextMenuStrip = this->contextMenuStrip1;
-			dataGridViewCellStyle3->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleLeft;
-			dataGridViewCellStyle3->BackColor = System::Drawing::Color::Black;
-			dataGridViewCellStyle3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+			dataGridViewCellStyle8->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleLeft;
+			dataGridViewCellStyle8->BackColor = System::Drawing::Color::Black;
+			dataGridViewCellStyle8->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			dataGridViewCellStyle3->ForeColor = System::Drawing::Color::White;
-			dataGridViewCellStyle3->SelectionBackColor = System::Drawing::SystemColors::Highlight;
-			dataGridViewCellStyle3->SelectionForeColor = System::Drawing::SystemColors::HighlightText;
-			dataGridViewCellStyle3->WrapMode = System::Windows::Forms::DataGridViewTriState::False;
-			this->dataGridView1->DefaultCellStyle = dataGridViewCellStyle3;
+			dataGridViewCellStyle8->ForeColor = System::Drawing::Color::White;
+			dataGridViewCellStyle8->SelectionBackColor = System::Drawing::SystemColors::Highlight;
+			dataGridViewCellStyle8->SelectionForeColor = System::Drawing::SystemColors::HighlightText;
+			dataGridViewCellStyle8->WrapMode = System::Windows::Forms::DataGridViewTriState::False;
+			this->dataGridView1->DefaultCellStyle = dataGridViewCellStyle8;
 			this->dataGridView1->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->dataGridView1->EnableHeadersVisualStyles = false;
 			this->dataGridView1->GridColor = System::Drawing::Color::Silver;
@@ -909,27 +828,28 @@ namespace Example {
 			this->dataGridView1->Margin = System::Windows::Forms::Padding(2);
 			this->dataGridView1->Name = L"dataGridView1";
 			this->dataGridView1->RowHeadersBorderStyle = System::Windows::Forms::DataGridViewHeaderBorderStyle::Single;
-			dataGridViewCellStyle4->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleLeft;
-			dataGridViewCellStyle4->BackColor = System::Drawing::Color::White;
-			dataGridViewCellStyle4->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+			dataGridViewCellStyle9->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleLeft;
+			dataGridViewCellStyle9->BackColor = System::Drawing::Color::White;
+			dataGridViewCellStyle9->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			dataGridViewCellStyle4->ForeColor = System::Drawing::Color::White;
-			dataGridViewCellStyle4->SelectionBackColor = System::Drawing::Color::White;
-			dataGridViewCellStyle4->SelectionForeColor = System::Drawing::Color::White;
-			dataGridViewCellStyle4->WrapMode = System::Windows::Forms::DataGridViewTriState::True;
-			this->dataGridView1->RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
+			dataGridViewCellStyle9->ForeColor = System::Drawing::Color::White;
+			dataGridViewCellStyle9->SelectionBackColor = System::Drawing::Color::White;
+			dataGridViewCellStyle9->SelectionForeColor = System::Drawing::Color::White;
+			dataGridViewCellStyle9->WrapMode = System::Windows::Forms::DataGridViewTriState::True;
+			this->dataGridView1->RowHeadersDefaultCellStyle = dataGridViewCellStyle9;
 			this->dataGridView1->RowHeadersVisible = false;
 			this->dataGridView1->RowHeadersWidth = 51;
-			dataGridViewCellStyle5->BackColor = System::Drawing::Color::White;
-			dataGridViewCellStyle5->ForeColor = System::Drawing::Color::Black;
-			dataGridViewCellStyle5->SelectionBackColor = System::Drawing::Color::LightGray;
-			dataGridViewCellStyle5->SelectionForeColor = System::Drawing::Color::Black;
-			this->dataGridView1->RowsDefaultCellStyle = dataGridViewCellStyle5;
+			dataGridViewCellStyle10->BackColor = System::Drawing::Color::White;
+			dataGridViewCellStyle10->ForeColor = System::Drawing::Color::Black;
+			dataGridViewCellStyle10->SelectionBackColor = System::Drawing::Color::LightGray;
+			dataGridViewCellStyle10->SelectionForeColor = System::Drawing::Color::Black;
+			this->dataGridView1->RowsDefaultCellStyle = dataGridViewCellStyle10;
 			this->dataGridView1->RowTemplate->Height = 24;
 			this->dataGridView1->SelectionMode = System::Windows::Forms::DataGridViewSelectionMode::CellSelect;
 			this->dataGridView1->Size = System::Drawing::Size(801, 328);
 			this->dataGridView1->TabIndex = 0;
 			this->dataGridView1->Visible = false;
+			this->dataGridView1->CellContentClick += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &MyForm::dataGridView1_CellContentClick);
 			this->dataGridView1->CellDoubleClick += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &MyForm::dataGridView1_CellDoubleClick);
 			this->dataGridView1->SizeChanged += gcnew System::EventHandler(this, &MyForm::dataGridView1_SizeChanged);
 			// 
@@ -946,7 +866,7 @@ namespace Example {
 			// toolStripMenuItem1
 			// 
 			this->toolStripMenuItem1->Name = L"toolStripMenuItem1";
-			this->toolStripMenuItem1->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::B));
+			this->toolStripMenuItem1->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::C));
 			this->toolStripMenuItem1->Size = System::Drawing::Size(164, 22);
 			this->toolStripMenuItem1->Text = L"Copy";
 			this->toolStripMenuItem1->Click += gcnew System::EventHandler(this, &MyForm::toolStripMenuItem1_Click);
@@ -986,7 +906,7 @@ namespace Example {
 			// propetiesToolStripMenuItem
 			// 
 			this->propetiesToolStripMenuItem->Name = L"propetiesToolStripMenuItem";
-			this->propetiesToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::R));
+			this->propetiesToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::P));
 			this->propetiesToolStripMenuItem->Size = System::Drawing::Size(164, 22);
 			this->propetiesToolStripMenuItem->Text = L"Propeties";
 			this->propetiesToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::propetiesToolStripMenuItem_Click);
@@ -1013,7 +933,7 @@ namespace Example {
 			this->button1->TabIndex = 0;
 			this->button1->Tag = L"";
 			this->button1->Text = L"Browse";
-			this->toolTip1->SetToolTip(this->button1, L"Select Folder to Scan");
+			this->toolTip1->SetToolTip(this->button1, L"Select a folder to scan");
 			this->button1->UseVisualStyleBackColor = false;
 			this->button1->Click += gcnew System::EventHandler(this, &MyForm::button1_Click);
 			// 
@@ -1028,7 +948,7 @@ namespace Example {
 			this->textBox1->Name = L"textBox1";
 			this->textBox1->Size = System::Drawing::Size(466, 21);
 			this->textBox1->TabIndex = 0;
-			this->toolTip1->SetToolTip(this->textBox1, L"Select Folder to Scan:");
+			this->toolTip1->SetToolTip(this->textBox1, L"Select a folder to scan:");
 			this->textBox1->TextChanged += gcnew System::EventHandler(this, &MyForm::textBox1_TextChanged);
 			// 
 			// button7
@@ -1046,7 +966,7 @@ namespace Example {
 			this->button7->Size = System::Drawing::Size(120, 25);
 			this->button7->TabIndex = 0;
 			this->button7->Text = L"   Compare";
-			this->toolTip1->SetToolTip(this->button7, L"Start comparasing");
+			this->toolTip1->SetToolTip(this->button7, L"Start comparison");
 			this->button7->UseVisualStyleBackColor = false;
 			this->button7->Click += gcnew System::EventHandler(this, &MyForm::button7_Click);
 			// 
@@ -1063,7 +983,7 @@ namespace Example {
 			this->button4->Size = System::Drawing::Size(112, 25);
 			this->button4->TabIndex = 16;
 			this->button4->Text = L"   Export";
-			this->toolTip1->SetToolTip(this->button4, L"Export existed snapshots");
+			this->toolTip1->SetToolTip(this->button4, L"Export existing snapshots");
 			this->button4->UseVisualStyleBackColor = false;
 			this->button4->Click += gcnew System::EventHandler(this, &MyForm::button4_Click);
 			// 
@@ -1080,7 +1000,7 @@ namespace Example {
 			this->button5->Size = System::Drawing::Size(120, 25);
 			this->button5->TabIndex = 15;
 			this->button5->Text = L"   Parameters";
-			this->toolTip1->SetToolTip(this->button5, L"Parametrs of comparasing and making snapshots");
+			this->toolTip1->SetToolTip(this->button5, L"Parameters for creating and comparing snapshots");
 			this->button5->UseVisualStyleBackColor = false;
 			this->button5->Click += gcnew System::EventHandler(this, &MyForm::button5_Click);
 			// 
@@ -1098,7 +1018,7 @@ namespace Example {
 			this->button2->Size = System::Drawing::Size(112, 25);
 			this->button2->TabIndex = 12;
 			this->button2->Text = L"   Snapshot";
-			this->toolTip1->SetToolTip(this->button2, L"Make new snapshot");
+			this->toolTip1->SetToolTip(this->button2, L"Make a new snapshot");
 			this->button2->UseVisualStyleBackColor = false;
 			this->button2->Click += gcnew System::EventHandler(this, &MyForm::button2_Click);
 			// 
@@ -1134,7 +1054,7 @@ namespace Example {
 			this->button6->Size = System::Drawing::Size(152, 29);
 			this->button6->TabIndex = 2;
 			this->button6->Text = L"Logs";
-			this->toolTip1->SetToolTip(this->button6, L"Watch Event Journal");
+			this->toolTip1->SetToolTip(this->button6, L"View the event log");
 			this->button6->UseVisualStyleBackColor = false;
 			this->button6->Click += gcnew System::EventHandler(this, &MyForm::button6_Click);
 			// 
@@ -1309,7 +1229,7 @@ namespace Example {
 			this->tableLayoutPanel7->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent,
 				89.32039F)));
 			this->tableLayoutPanel7->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Absolute,
-				388)));
+				389)));
 			this->tableLayoutPanel7->Controls->Add(this->panel2, 1, 0);
 			this->tableLayoutPanel7->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->tableLayoutPanel7->Location = System::Drawing::Point(2, 429);
@@ -1330,7 +1250,7 @@ namespace Example {
 			this->panel2->Margin = System::Windows::Forms::Padding(2);
 			this->panel2->MaximumSize = System::Drawing::Size(750, 122);
 			this->panel2->Name = L"panel2";
-			this->panel2->Size = System::Drawing::Size(480, 57);
+			this->panel2->Size = System::Drawing::Size(479, 57);
 			this->panel2->TabIndex = 17;
 			// 
 			// tableLayoutPanel9
@@ -1387,7 +1307,6 @@ namespace Example {
 			this->Controls->Add(this->tableLayoutPanel2);
 			this->Controls->Add(this->statusStrip1);
 			this->Controls->Add(this->menuStrip1);
-			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->Margin = System::Windows::Forms::Padding(2);
 			this->MinimumSize = System::Drawing::Size(950, 581);
 			this->Name = L"MyForm";
@@ -1432,22 +1351,18 @@ namespace Example {
 		System::Windows::Forms::DialogResult result = folderBrowserDialog1->ShowDialog();
 
 		textBox1->Text = folderBrowserDialog1->SelectedPath;
-		if (textBox1->Text == "") {
-			MessageBox::Show("Путь к каталогу не выбран", "Информация",
-				MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+		if (textBox1->Text == "")
 			return;
-		}
 
 		WIN32_FIND_DATAW wfd;
 		pin_ptr<const wchar_t> wname = PtrToStringChars(textBox1->Text + "\\*");
 		HANDLE const hFind = FindFirstFileW(wname, &wfd);
 		setlocale(LC_ALL, "");
 		dataGridView1->Rows->Clear();
-		if (parameters_flag) {
-			dataGridView1->Columns->Clear();
-			Add_Column_Headers();
-			parameters_flag = false;
-		}
+		dataGridView1->Columns->Clear();
+
+		Add_Column_Headers();
+
 		if (INVALID_HANDLE_VALUE != hFind && check_box[0] == true)
 		{
 			int i = 0;
@@ -1472,11 +1387,11 @@ namespace Example {
 		exit(0);
 	}
 	private: System::Void справкаToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-		MessageBox::Show("Краткое описание функционала", "Справка",
+		MessageBox::Show("Описание функционала", "Help",
 			MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
 	}
 	private: System::Void оПрограммеToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-		MessageBox::Show("Данное приложение разработано в рамках проекта по ОПД в 2023", "О программе",
+		MessageBox::Show("Данное приложение разработано в рамках проекта по ОПД в 2023", "About FolderWatcher",
 			MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
 	}
 	private: System::Void button4_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -1630,32 +1545,7 @@ namespace Example {
 			fclose(file_read);
 			delete[] snapshot;
 
-			historyToolStripMenuItem->Enabled = true;
-			if (history_count == 0) {
-				firstStripMenuItem->Text = openFileDialog1->FileName;
-				firstStripMenuItem->Visible = true;
-				history_count++;
-			}
-			else if (history_count == 1) {
-				secondStripMenuItem->Text = openFileDialog1->FileName;
-				secondStripMenuItem->Visible = true;
-				history_count++;
-			}
-			else if (history_count == 2) {
-				thirdStripMenuItem->Text = openFileDialog1->FileName;
-				thirdStripMenuItem->Visible = true;
-				history_count++;
-			}
-			else if (history_count == 3) {
-				fourthStripMenuItem->Text = openFileDialog1->FileName;
-				fourthStripMenuItem->Visible = true;
-				history_count++;
-			}
-			else if (history_count == 4) {
-				fifthStripMenuItem->Text = openFileDialog1->FileName;
-				fifthStripMenuItem->Visible = true;
-				history_count = 0;
-			}
+			button7->Enabled = true;
 		}
 	}
 	private: System::Void button5_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -1663,7 +1553,6 @@ namespace Example {
 		toolStripStatusLabel4->Text = "Ready";
 		New::Parameters^ f = gcnew New::Parameters(gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
 		f->ShowDialog();
-		parameters_flag = true;
 	}
 	private: System::Void fileSystemWatcher1_Created_1(System::Object^ sender, System::IO::FileSystemEventArgs^ e) {
 		ChangeMode();
@@ -1896,13 +1785,8 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 	{
 		f->listBox1->Items->Add(listBox2->Items[i]);
 	}
-	if (listBox2->Items->Count != 0)
-		f->ShowDialog();
-	else
-	{
-		MessageBox::Show("Журнал событий пуст", "Информация",
-			MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
-	}
+
+	f->ShowDialog();
 }
 	private: System::Void textBox1_TextChanged(System::Object^ sender, System::EventArgs^ e) {
 		struct stat s;
@@ -1998,34 +1882,6 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 
 			//закоментил ибо бэкграундворкеру нужен путь до папки, а не до слепка
 			//textBox1->Text = SaveFileDialog->FileName;
-
-			//заполнение таблицы из слепка
-			historyToolStripMenuItem->Enabled = true;
-			if (history_count == 0) {
-				firstStripMenuItem->Text = SaveFileDialog->FileName;
-				firstStripMenuItem->Visible = true;
-				history_count++;
-			}
-			else if (history_count == 1) {
-				secondStripMenuItem->Text = SaveFileDialog->FileName;
-				secondStripMenuItem->Visible = true;
-				history_count++;
-			}
-			else if (history_count == 2) {
-				thirdStripMenuItem->Text = SaveFileDialog->FileName;
-				thirdStripMenuItem->Visible = true;
-				history_count++;
-			}
-			else if (history_count == 3) {
-				fourthStripMenuItem->Text = SaveFileDialog->FileName;
-				fourthStripMenuItem->Visible = true;
-				history_count++;
-			}
-			else if (history_count == 4) {
-				fifthStripMenuItem->Text = SaveFileDialog->FileName;
-				fifthStripMenuItem->Visible = true;
-				history_count=0;
-			}
 		}
 	}
 	private: System::Void button7_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -2058,6 +1914,19 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 		f->ShowDialog();
 	}
 	private: System::Void backgroundWorker1_DoWork(System::Object^ sender, System::ComponentModel::DoWorkEventArgs^ e) {
+
+		button1->Enabled = false;
+		button2->Enabled = false;
+		button3->Enabled = false;
+		button4->Enabled = false;
+		button5->Enabled = false;
+		button6->Enabled = false;
+		button7->Enabled = false;
+		textBox1->Enabled = false;
+		contextMenuStrip1->Enabled = false;
+		instrumentsToolStripMenuItem->Enabled = false;
+		parametersToolStripMenuItem->Enabled = false;
+
 		toolStripStatusLabel4->Text = "Running";
 		toolStripStatusLabel4->Image = Image::FromFile("Images\\progress.gif");
 
@@ -2072,6 +1941,18 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 
 		toolStripStatusLabel4->Text = "Completed";
 		toolStripStatusLabel4->Image = Image::FromFile("Images\\completed.png");
+
+		button1->Enabled = true;
+		button2->Enabled = true;
+		button3->Enabled = true;
+		button4->Enabled = true;
+		button5->Enabled = true;
+		button6->Enabled = true;
+		button7->Enabled = true;
+		textBox1->Enabled = true;
+		contextMenuStrip1->Enabled = true;
+		instrumentsToolStripMenuItem->Enabled = true;
+		parametersToolStripMenuItem->Enabled = true;
 	}
 	private: System::Void dataGridView1_SizeChanged(System::Object^ sender, System::EventArgs^ e) {
 		if (!dataGridView1->ColumnCount) return;
@@ -2094,64 +1975,36 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 			dataGridView1->Columns[0]->Width = dataGridView1->Width;
 			return;
 		}
-		if (check_box[0] == true) {
-			if (sum > 1) {
-				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.35;
-				sum--;
-				count--;
-				if (check_box[1] == true) {
-					dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
-					count--;
-				}
-				if (check_box[2] == true) {
-					dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
-					count--;
-				}
-				if (check_box[3] == true) {
-					dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
-					count--;
-				}
-				if (check_box[4] == true) {
-					dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
-					count--;
-				}
-				if (check_box[5] == true) {
-					dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
-					count--;
-				}
-				if (check_box[6] == true) {
-					dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
-				}
-			}
-			else
-				dataGridView1->Columns[0]->Width = dataGridView1->Width;
-		}
-		else {
+		if (sum > 1) {
+			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.35;
+			sum--;
+			count--;
 			if (check_box[1] == true) {
-				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width / sum;
+				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
 				count--;
 			}
 			if (check_box[2] == true) {
-				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width / sum;
+				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
 				count--;
 			}
 			if (check_box[3] == true) {
-				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width / sum;
+				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
 				count--;
 			}
 			if (check_box[4] == true) {
-				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width / sum;
+				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
 				count--;
 			}
 			if (check_box[5] == true) {
-				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width / sum;
+				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
 				count--;
 			}
 			if (check_box[6] == true) {
-				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width / sum;
-				count--;
+				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
 			}
 		}
+		else
+			dataGridView1->Columns[0]->Width = dataGridView1->Width;
 	}
 private: System::Void selectAllToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 	dataGridView1->SelectAll();
@@ -2350,6 +2203,8 @@ private: System::Void fourthStripMenuItem_Click(System::Object^ sender, System::
 }
 private: System::Void fifthStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 	textBox1->Text = fifthStripMenuItem->Text;
+}
+private: System::Void dataGridView1_CellContentClick(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e) {
 }
 };
 }

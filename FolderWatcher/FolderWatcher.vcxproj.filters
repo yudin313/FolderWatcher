@@ -57,9 +57,6 @@
     <ClCompile Include="Compare.cpp">
       <Filter>Frontend</Filter>
     </ClCompile>
-    <ClCompile Include="compare_snapshot.cpp">
-      <Filter>Backend</Filter>
-    </ClCompile>
     <ClCompile Include="Setup.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
@@ -130,5 +127,10 @@
     <EmbeddedResource Include="Compare.resx">
       <Filter>Frontend</Filter>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="DLYAEGORA.txt">
+      <Filter>Frontend</Filter>
+    </Text>
   </ItemGroup>
 </Project>

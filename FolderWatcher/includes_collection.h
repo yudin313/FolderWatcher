@@ -25,7 +25,16 @@ extern TCHAR* TempSnapShot2;
 void setup(void);
 void deinit(void);
 
-void file_information(char*, char*);
 int is_file_or_folder(char*);
-
+void file_information(char*, char*);
 void next_file(FILE* file_read);
+
+/*
+* button1 - browse
+* button2 - snapshot
+* button3 - refresh
+* button4 - export
+* button5 - parameters
+* button6 - logs
+* button7 - compare
+*/

@@ -34,94 +34,54 @@ namespace New {
 			int sum = 0;
 			for (int i = 0; i < 7; i++)
 				sum += check_box[i];
-			if (check_box[0] == true) {
-				if (sum > 1) {
-					dataGridView1->Columns->Add("FileName", "File Name");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.35;
-					dataGridView2->Columns->Add("FileName", "File Name");
-					dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.35;
-					sum--;
-					if (check_box[1] == true) {
-						dataGridView1->Columns->Add("Size", "Size");
-						dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
-						dataGridView2->Columns->Add("Size", "Size");
-						dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.65 / sum;
-					}
-					if (check_box[2] == true) {
-						dataGridView1->Columns->Add("Attributes", "Attributes");
-						dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
-						dataGridView2->Columns->Add("Attributes", "Attributes");
-						dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.65 / sum;
-					}
-					if (check_box[3] == true) {
-						dataGridView1->Columns->Add("Streams", "Streams");
-						dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
-						dataGridView2->Columns->Add("Streams", "Streams");
-						dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.65 / sum;
-					}
-					if (check_box[4] == true) {
-						dataGridView1->Columns->Add("CreationTime", "Creation Time");
-						dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
-						dataGridView2->Columns->Add("CreationTime", "Creation Time");
-						dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.65 / sum;
-					}
-					if (check_box[5] == true) {
-						dataGridView1->Columns->Add("ModificationTime", "Modification Time");
-						dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
-						dataGridView2->Columns->Add("ModificationTime", "Modification Time");
-						dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.65 / sum;
-					}
-					if (check_box[6] == true) {
-						dataGridView1->Columns->Add("AccessTime", "Access Time");
-						dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
-						dataGridView2->Columns->Add("AccessTime", "Access Time");
-						dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.65 / sum;
-					}
-				}
-				else {
-					dataGridView1->Columns->Add("FileName", "File Name");
-					dataGridView1->Columns[0]->Width = dataGridView1->Width;
-					dataGridView2->Columns->Add("FileName", "File Name");
-					dataGridView2->Columns[0]->Width = dataGridView2->Width;
-				}
-			}
-			else {
+			if (sum > 1) {
+				dataGridView1->Columns->Add("FileName", "File Name");
+				dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.35;
+				dataGridView2->Columns->Add("FileName", "File Name");
+				dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.35;
+				sum--;
 				if (check_box[1] == true) {
 					dataGridView1->Columns->Add("Size", "Size");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width / sum;
+					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
 					dataGridView2->Columns->Add("Size", "Size");
-					dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width / sum;
+					dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.65 / sum;
 				}
 				if (check_box[2] == true) {
 					dataGridView1->Columns->Add("Attributes", "Attributes");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width / sum;
-					dataGridView1->Columns->Add("Attributes", "Attributes");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width / sum;
+					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
+					dataGridView2->Columns->Add("Attributes", "Attributes");
+					dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.65 / sum;
 				}
 				if (check_box[3] == true) {
 					dataGridView1->Columns->Add("Streams", "Streams");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width / sum;
+					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
 					dataGridView2->Columns->Add("Streams", "Streams");
-					dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width / sum;
+					dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.65 / sum;
 				}
 				if (check_box[4] == true) {
 					dataGridView1->Columns->Add("CreationTime", "Creation Time");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width / sum;
+					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
 					dataGridView2->Columns->Add("CreationTime", "Creation Time");
-					dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width / sum;
+					dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.65 / sum;
 				}
 				if (check_box[5] == true) {
 					dataGridView1->Columns->Add("ModificationTime", "Modification Time");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width / sum;
+					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
 					dataGridView2->Columns->Add("ModificationTime", "Modification Time");
-					dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width / sum;
+					dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.65 / sum;
 				}
 				if (check_box[6] == true) {
 					dataGridView1->Columns->Add("AccessTime", "Access Time");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width / sum;
+					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
 					dataGridView2->Columns->Add("AccessTime", "Access Time");
-					dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width / sum;
+					dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.65 / sum;
 				}
+			}
+			else {
+				dataGridView1->Columns->Add("FileName", "File Name");
+				dataGridView1->Columns[0]->Width = dataGridView1->Width;
+				dataGridView2->Columns->Add("FileName", "File Name");
+				dataGridView2->Columns[0]->Width = dataGridView2->Width;
 			}
 		}
 	protected:
@@ -185,7 +145,7 @@ private: System::ComponentModel::IContainer^ components;
 			// splitContainer1.Panel2
 			// 
 			this->splitContainer1->Panel2->Controls->Add(this->dataGridView2);
-			this->splitContainer1->Size = System::Drawing::Size(1123, 538);
+			this->splitContainer1->Size = System::Drawing::Size(1090, 538);
 			this->splitContainer1->SplitterDistance = 543;
 			this->splitContainer1->TabIndex = 0;
 			// 
@@ -267,7 +227,7 @@ private: System::ComponentModel::IContainer^ components;
 			this->dataGridView2->RowHeadersWidth = 51;
 			this->dataGridView2->RowTemplate->Height = 24;
 			this->dataGridView2->SelectionMode = System::Windows::Forms::DataGridViewSelectionMode::CellSelect;
-			this->dataGridView2->Size = System::Drawing::Size(576, 538);
+			this->dataGridView2->Size = System::Drawing::Size(543, 538);
 			this->dataGridView2->TabIndex = 0;
 			this->dataGridView2->CellClick += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &Compare::dataGridView2_CellClick);
 			this->dataGridView2->CellDoubleClick += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &Compare::dataGridView2_CellDoubleClick);
@@ -335,8 +295,15 @@ private: System::Void Compare_Load(System::Object^ sender, System::EventArgs^ e)
 		file_read1 = fopen(path1, "r");
 		fgets(stroka1, 8, file_read1);
 		if (!(stroka1[0] == 7 && stroka1[1] == 3 && stroka1[2] == 5 && stroka1[3] == 9 && stroka1[4] == 2 && stroka1[5] == 7 && stroka1[6] == '\n')) {
-			//выбран некорректный файл
-			//надо прекратить сравнение или вывести ошибку
+			//MessageBox::Show("Incorrect snapshot", "Error",
+			//	MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+			//delete[] NAME2;
+			//delete[] NAME1;
+			//delete[] stroka2;
+			//delete[] stroka1;
+			//delete[] path2;
+			//delete[] path1;
+			//return;
 		}
 		strcpy(NAME1, path1);
 	}
@@ -364,8 +331,15 @@ private: System::Void Compare_Load(System::Object^ sender, System::EventArgs^ e)
 		file_read2 = fopen(path2, "r");
 		fgets(stroka2, 8, file_read2);
 		if (!(stroka2[0] == 7 && stroka2[1] == 3 && stroka2[2] == 5 && stroka2[3] == 9 && stroka2[4] == 2 && stroka2[5] == 7 && stroka2[6] == '\n')) {
-			//выбран некорректный файл
-			//надо прекратить сравнение или вывести ошибку
+			//MessageBox::Show("Incorrect snapshot", "Error",
+			//	MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+			//delete[] NAME2;
+			//delete[] NAME1;
+			//delete[] stroka2;
+			//delete[] stroka1;
+			//delete[] path2;
+			//delete[] path1;
+			//return;
 		}
 		strcpy(NAME2, path2);
 	}
@@ -562,19 +536,22 @@ private: System::Void Compare_Load(System::Object^ sender, System::EventArgs^ e)
 			fgets(stroka1, 4096, file_read1);
 			fgets(stroka2, 4096, file_read2);
 			if (strcmp(stroka1, stroka2)) {
-				//fill_row_compare(); //если хэш изменился
+				dataGridView1->Rows[row_cnt]->Cells[0]->Style->BackColor = Color::HotPink;
+				dataGridView2->Rows[row_cnt]->Cells[0]->Style->BackColor = Color::HotPink;
 			}
 
 			fgets(stroka1, 4096, file_read1);
 			fgets(stroka2, 4096, file_read2);
 			if (strcmp(stroka1, stroka2)) {
-				//fill_row_compare(); //если хэш изменился
+				dataGridView1->Rows[row_cnt]->Cells[0]->Style->BackColor = Color::HotPink;
+				dataGridView2->Rows[row_cnt]->Cells[0]->Style->BackColor = Color::HotPink;
 			}
 
 			fgets(stroka1, 4096, file_read1);
 			fgets(stroka2, 4096, file_read2);
 			if (strcmp(stroka1, stroka2)) {
-				//fill_row_compare(); //если хэш изменился
+				dataGridView1->Rows[row_cnt]->Cells[0]->Style->BackColor = Color::HotPink;
+				dataGridView2->Rows[row_cnt]->Cells[0]->Style->BackColor = Color::HotPink;
 			}
 
 			fclose(file_read2);
@@ -788,65 +765,38 @@ private: System::Void dataGridView1_SizeChanged(System::Object^ sender, System::
 	int sum = 0, count = dataGridView1->ColumnCount;
 	for (int i = 0; i < 7; i++)
 		sum += check_box[i];
-	if (!dataGridView1->ColumnCount) return;
-	if (check_box[0] == true) {
-		if (sum > 1) {
-			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.35;
-			sum--;
-			count--;
-			if (check_box[1] == true) {
-				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
-				count--;
-			}
-			if (check_box[2] == true) {
-				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
-				count--;
-			}
-			if (check_box[3] == true) {
-				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
-				count--;
-			}
-			if (check_box[4] == true) {
-				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
-				count--;
-			}
-			if (check_box[5] == true) {
-				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
-				count--;
-			}
-			if (check_box[6] == true) {
-				dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
-			}
-		}
-		else
-			dataGridView1->Columns[0]->Width = dataGridView1->Width;
-	}
-	else {
+	if (!dataGridView1->ColumnCount)
+		return;
+	if (sum > 1) {
+		dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.35;
+		sum--;
+		count--;
 		if (check_box[1] == true) {
-			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width / sum;
+			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
 			count--;
 		}
 		if (check_box[2] == true) {
-			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width / sum;
+			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
 			count--;
 		}
 		if (check_box[3] == true) {
-			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width / sum;
+			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
 			count--;
 		}
 		if (check_box[4] == true) {
-			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width / sum;
+			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
 			count--;
 		}
 		if (check_box[5] == true) {
-			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width / sum;
+			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
 			count--;
 		}
 		if (check_box[6] == true) {
-			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width / sum;
-			count--;
+			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
 		}
 	}
+	else
+		dataGridView1->Columns[0]->Width = dataGridView1->Width;
 }
 private: System::Void dataGridView2_SizeChanged(System::Object^ sender, System::EventArgs^ e) {
 	if (!dataGridView2->ColumnCount) return;
@@ -854,65 +804,38 @@ private: System::Void dataGridView2_SizeChanged(System::Object^ sender, System::
 	int sum = 0, count = dataGridView2->ColumnCount;
 	for (int i = 0; i < 7; i++)
 		sum += check_box[i];
-	if (!dataGridView2->ColumnCount) return;
-	if (check_box[0] == true) {
-		if (sum > 1) {
-			dataGridView2->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView2->Width * 0.35;
-			sum--;
-			count--;
-			if (check_box[1] == true) {
-				dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width * 0.65 / sum;
-				count--;
-			}
-			if (check_box[2] == true) {
-				dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width * 0.65 / sum;
-				count--;
-			}
-			if (check_box[3] == true) {
-				dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width * 0.65 / sum;
-				count--;
-			}
-			if (check_box[4] == true) {
-				dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width * 0.65 / sum;
-				count--;
-			}
-			if (check_box[5] == true) {
-				dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width * 0.65 / sum;
-				count--;
-			}
-			if (check_box[6] == true) {
-				dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width * 0.65 / sum;
-			}
-		}
-		else
-			dataGridView2->Columns[0]->Width = dataGridView2->Width;
-	}
-	else {
+	if (!dataGridView2->ColumnCount)
+		return;
+	if (sum > 1) {
+		dataGridView2->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView2->Width * 0.35;
+		sum--;
+		count--;
 		if (check_box[1] == true) {
-			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width / sum;
+			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width * 0.65 / sum;
 			count--;
 		}
 		if (check_box[2] == true) {
-			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width / sum;
+			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width * 0.65 / sum;
 			count--;
 		}
 		if (check_box[3] == true) {
-			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width / sum;
+			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width * 0.65 / sum;
 			count--;
 		}
 		if (check_box[4] == true) {
-			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width / sum;
+			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width * 0.65 / sum;
 			count--;
 		}
 		if (check_box[5] == true) {
-			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width / sum;
+			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width * 0.65 / sum;
 			count--;
 		}
 		if (check_box[6] == true) {
-			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width / sum;
-			count--;
+			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width * 0.65 / sum;
 		}
 	}
+	else
+		dataGridView2->Columns[0]->Width = dataGridView2->Width;
 }
 private: System::Void dataGridView1_CellClick(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e) {
 	dataGridView1->ClearSelection();
