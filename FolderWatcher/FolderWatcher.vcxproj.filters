@@ -128,9 +128,4 @@
       <Filter>Frontend</Filter>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="DLYAEGORA.txt">
-      <Filter>Frontend</Filter>
-    </Text>
-  </ItemGroup>
 </Project>

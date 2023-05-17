@@ -17,64 +17,51 @@ namespace New {
 	public ref class Compare : public System::Windows::Forms::Form
 	{
 	System::String^ first_path;
-	private: System::Windows::Forms::ToolTip^ toolTip1;
-		   System::String^ second_path;
+	System::String^ second_path;
 	public:
 		Compare(System::ComponentModel::ComponentResourceManager^ resources, String^ path_for_first_grid,String^ path_for_second_grid)
 		{
 			//System::String^ new_path = msclr::interop::marshal_as<System::String^>(path);
 			first_path = path_for_first_grid;
 			second_path = path_for_second_grid;
-			InitializeComponent();
+			InitializeComponent(resources);
 			//
 			//TODO: добавьте код конструктора
 			//
 		}
 		void Add_Column_Headers() {
 			int sum = 0;
+			dataGridView1->Columns->Add("grid1_count_row", "№");
+			dataGridView2->Columns->Add("grid2_count_row", "№");
 			for (int i = 0; i < 7; i++)
 				sum += check_box[i];
 			if (sum > 1) {
 				dataGridView1->Columns->Add("FileName", "File Name");
-				dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.35;
 				dataGridView2->Columns->Add("FileName", "File Name");
-				dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.35;
 				sum--;
 				if (check_box[1] == true) {
 					dataGridView1->Columns->Add("Size", "Size");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
 					dataGridView2->Columns->Add("Size", "Size");
-					dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.65 / sum;
 				}
 				if (check_box[2] == true) {
 					dataGridView1->Columns->Add("Attributes", "Attributes");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
 					dataGridView2->Columns->Add("Attributes", "Attributes");
-					dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.65 / sum;
 				}
 				if (check_box[3] == true) {
 					dataGridView1->Columns->Add("Streams", "Streams");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
 					dataGridView2->Columns->Add("Streams", "Streams");
-					dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.65 / sum;
 				}
 				if (check_box[4] == true) {
 					dataGridView1->Columns->Add("CreationTime", "Creation Time");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
 					dataGridView2->Columns->Add("CreationTime", "Creation Time");
-					dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.65 / sum;
 				}
 				if (check_box[5] == true) {
 					dataGridView1->Columns->Add("ModificationTime", "Modification Time");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
 					dataGridView2->Columns->Add("ModificationTime", "Modification Time");
-					dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.65 / sum;
 				}
 				if (check_box[6] == true) {
 					dataGridView1->Columns->Add("AccessTime", "Access Time");
-					dataGridView1->Columns[dataGridView1->ColumnCount - 1]->Width = dataGridView1->Width * 0.65 / sum;
 					dataGridView2->Columns->Add("AccessTime", "Access Time");
-					dataGridView2->Columns[dataGridView2->ColumnCount - 1]->Width = dataGridView2->Width * 0.65 / sum;
 				}
 			}
 			else {
@@ -113,8 +100,9 @@ private: System::ComponentModel::IContainer^ components;
 		/// содержимое этого метода с помощью редактора кода.
 		/// </summary>
 		/// System::ComponentModel::ComponentResourceManager^ resources
-		void InitializeComponent()
+		void InitializeComponent(System::ComponentModel::ComponentResourceManager^ resources)
 		{
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->components = (gcnew System::ComponentModel::Container());
 			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle1 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
 			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle2 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
@@ -123,7 +111,6 @@ private: System::ComponentModel::IContainer^ components;
 			this->splitContainer1 = (gcnew System::Windows::Forms::SplitContainer());
 			this->dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
 			this->dataGridView2 = (gcnew System::Windows::Forms::DataGridView());
-			this->toolTip1 = (gcnew System::Windows::Forms::ToolTip(this->components));
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->splitContainer1))->BeginInit();
 			this->splitContainer1->Panel1->SuspendLayout();
 			this->splitContainer1->Panel2->SuspendLayout();
@@ -197,10 +184,8 @@ private: System::ComponentModel::IContainer^ components;
 			this->dataGridView1->SelectionMode = System::Windows::Forms::DataGridViewSelectionMode::FullRowSelect;
 			this->dataGridView1->Size = System::Drawing::Size(543, 538);
 			this->dataGridView1->TabIndex = 0;
-			this->toolTip1->SetToolTip(this->dataGridView1, L"Hello");
 			this->dataGridView1->CellClick += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &Compare::dataGridView1_CellClick);
 			this->dataGridView1->CellDoubleClick += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &Compare::dataGridView1_CellDoubleClick);
-			this->dataGridView1->CellMouseEnter += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &Compare::dataGridView1_CellMouseEnter);
 			this->dataGridView1->SizeChanged += gcnew System::EventHandler(this, &Compare::dataGridView1_SizeChanged);
 			// 
 			// dataGridView2
@@ -233,15 +218,6 @@ private: System::ComponentModel::IContainer^ components;
 			this->dataGridView2->CellDoubleClick += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &Compare::dataGridView2_CellDoubleClick);
 			this->dataGridView2->SizeChanged += gcnew System::EventHandler(this, &Compare::dataGridView2_SizeChanged);
 			// 
-			// toolTip1
-			// 
-			this->toolTip1->Active = false;
-			this->toolTip1->AutomaticDelay = 0;
-			this->toolTip1->IsBalloon = true;
-			this->toolTip1->ShowAlways = true;
-			this->toolTip1->ToolTipIcon = System::Windows::Forms::ToolTipIcon::Info;
-			this->toolTip1->ToolTipTitle = L"Info";
-			// 
 			// Compare
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
@@ -250,7 +226,7 @@ private: System::ComponentModel::IContainer^ components;
 			this->Controls->Add(this->splitContainer1);
 			this->MinimumSize = System::Drawing::Size(1141, 585);
 			this->Name = L"Compare";
-			this->Text = L"Compare";
+			this->Text = first_path + " ____ " + second_path;
 			this->Load += gcnew System::EventHandler(this, &Compare::Compare_Load);
 			this->splitContainer1->Panel1->ResumeLayout(false);
 			this->splitContainer1->Panel2->ResumeLayout(false);
@@ -264,48 +240,35 @@ private: System::ComponentModel::IContainer^ components;
 #pragma endregion
 private: System::Void Compare_Load(System::Object^ sender, System::EventArgs^ e) {
 
-	std::string temp = msclr::interop::marshal_as<std::string>(first_path->Substring(0));
-	char* path1 = new char[temp.length() + 1];
-	strcpy(path1, temp.c_str());
+	bool f1 = false, f2 = false;
+	std::wstring str;
 
-	temp = msclr::interop::marshal_as<std::string>(second_path->Substring(0));
-	char* path2 = new char[temp.length() + 1];
-	strcpy(path2, temp.c_str());
+	str = msclr::interop::marshal_as<std::wstring>(first_path->Substring(0));
+	TCHAR* path1 = new TCHAR[str.length() + 1];
+	wcscpy(path1, str.c_str());
+
+	str = msclr::interop::marshal_as<std::wstring>(second_path->Substring(0));
+	TCHAR* path2 = new TCHAR[str.length() + 1];
+	wcscpy(path2, str.c_str());
 
 	char* stroka1 = new char[4096];
 	char* stroka2 = new char[4096];
-	char* NAME1 = new char[4096];
-	char* NAME2 = new char[4096];
 	int count1 = 0, count2 = 0;
+	bool ff1 = false, ff2 = false;
 
 	FILE* file_read1, * file_read2;
 
 	if (is_file_or_folder(path1) == _FOLDER) {
-		char* char_snap_path = new char[1024];
-		wcstombs(char_snap_path, TempSnapShot1, 1024);
-
-		file_information(path1, char_snap_path);
-		file_read1 = fopen(char_snap_path, "r");
+		ff1 = true;
+		file_information(path1, TempSnapShot1);
+		file_read1 = _wfopen(TempSnapShot1, TEXT("r"));
 		fgets(stroka1, 8, file_read1);
-		strcpy(NAME1, char_snap_path);
-
-		delete[] char_snap_path;
 	}
 	else {
-		file_read1 = fopen(path1, "r");
+		file_read1 = _wfopen(path1, TEXT("r"));
 		fgets(stroka1, 8, file_read1);
-		if (!(stroka1[0] == 7 && stroka1[1] == 3 && stroka1[2] == 5 && stroka1[3] == 9 && stroka1[4] == 2 && stroka1[5] == 7 && stroka1[6] == '\n')) {
-			//MessageBox::Show("Incorrect snapshot", "Error",
-			//	MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
-			//delete[] NAME2;
-			//delete[] NAME1;
-			//delete[] stroka2;
-			//delete[] stroka1;
-			//delete[] path2;
-			//delete[] path1;
-			//return;
-		}
-		strcpy(NAME1, path1);
+		if (!(stroka1[0] == 7 && stroka1[1] == 3 && stroka1[2] == 5 && stroka1[3] == 9 && stroka1[4] == 2 && stroka1[5] == 7 && stroka1[6] == '\n'))
+			f1 = true;
 	}
 
 	fgets(stroka1, 9, file_read1);
@@ -317,31 +280,16 @@ private: System::Void Compare_Load(System::Object^ sender, System::EventArgs^ e)
 	}
 
 	if (is_file_or_folder(path2) == _FOLDER) {
-		char* char_snap_path = new char[1024];
-		wcstombs(char_snap_path, TempSnapShot2, 1024);
-
-		file_information(path2, char_snap_path);
-		file_read2 = fopen(char_snap_path, "r");
+		ff2 = true;
+		file_information(path2, TempSnapShot2);
+		file_read2 = _wfopen(TempSnapShot2, TEXT("r"));
 		fgets(stroka2, 8, file_read2);
-		strcpy(NAME2, char_snap_path);
-
-		delete[] char_snap_path;
 	}
 	else {
-		file_read2 = fopen(path2, "r");
+		file_read2 = _wfopen(path2, TEXT("r"));
 		fgets(stroka2, 8, file_read2);
-		if (!(stroka2[0] == 7 && stroka2[1] == 3 && stroka2[2] == 5 && stroka2[3] == 9 && stroka2[4] == 2 && stroka2[5] == 7 && stroka2[6] == '\n')) {
-			//MessageBox::Show("Incorrect snapshot", "Error",
-			//	MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
-			//delete[] NAME2;
-			//delete[] NAME1;
-			//delete[] stroka2;
-			//delete[] stroka1;
-			//delete[] path2;
-			//delete[] path1;
-			//return;
-		}
-		strcpy(NAME2, path2);
+		if (!(stroka2[0] == 7 && stroka2[1] == 3 && stroka2[2] == 5 && stroka2[3] == 9 && stroka2[4] == 2 && stroka2[5] == 7 && stroka2[6] == '\n'))
+			f2 = true;
 	}
 
 	fgets(stroka2, 9, file_read2);
@@ -349,416 +297,421 @@ private: System::Void Compare_Load(System::Object^ sender, System::EventArgs^ e)
 		if (stroka2[i] == '0')
 			check_box[i] = false;
 
-	Add_Column_Headers();
+	if (f1 == false && f2 == false) {
 
-	for (;;) {
+		Add_Column_Headers();
+
+		char c;
+		fseek(file_read1, -1, SEEK_END);
+		while ((c = fgetc(file_read1)) != '\n')
+			fseek(file_read1, -2, SEEK_CUR);
+		int res = fscanf(file_read1, "%i", &count1);
+		fseek(file_read1, 0, SEEK_SET);
+
+		fseek(file_read2, -1, SEEK_END);
+		while ((c = fgetc(file_read2)) != '\n')
+			fseek(file_read2, -2, SEEK_CUR);
+		res = fscanf(file_read2, "%i", &count2);
+		fseek(file_read2, 0, SEEK_SET);
+
+		bool* checked_file1 = new bool[count1]();
+		bool* checked_file2 = new bool[count2]();
+
 		fgets(stroka1, 4096, file_read1);
-		if (stroka1[0] == 7 && stroka1[1] == 3 && stroka1[2] == 5 && stroka1[3] == 9 && stroka1[4] == 2 && stroka1[5] == 7 && stroka1[6] == '\n') {
-			fclose(file_read1);
-			break;
-		}
-		else {
-			next_file(file_read1);
-			count1++;
-		}
-	}
-
-	for (;;) {
+		fgets(stroka1, 4096, file_read1);
+		fgets(stroka1, 4096, file_read1);
 		fgets(stroka2, 4096, file_read2);
-		if (stroka2[0] == 7 && stroka2[1] == 3 && stroka2[2] == 5 && stroka2[3] == 9 && stroka2[4] == 2 && stroka2[5] == 7 && stroka2[6] == '\n') {
-			fclose(file_read2);
-			break;
-		}
-		else {
-			next_file(file_read2);
-			count2++;
-		}
-	}
-
-	bool* checked_file1 = new bool[count1]();
-	bool* checked_file2 = new bool[count2]();
-
-	file_read1 = fopen(NAME1, "r");
-	file_read2 = fopen(NAME2, "r");
-	fgets(stroka1, 4096, file_read1);
-	fgets(stroka1, 4096, file_read1);
-	fgets(stroka1, 4096, file_read1);
-	fgets(stroka2, 4096, file_read2);
-	fgets(stroka2, 4096, file_read2);
-
-	int i1 = 0, i2 = 0;
-	int row_cnt = 0;
-	int col_cnt = 0;
-
-	for (;;) {
 		fgets(stroka2, 4096, file_read2);
-		if (stroka1[0] == 7 && stroka1[1] == 3 && stroka1[2] == 5 && stroka1[3] == 9 && stroka1[4] == 2 && stroka1[5] == 7 && stroka1[6] == '\n') {
-			fclose(file_read1);
-			fclose(file_read2);
-			i1 = 0;
-			i2 = 0;
-			break;
+
+		int i1 = 0, i2 = 0;
+		int row_cnt = 0;
+		int col_cnt = 0;
+
+		for (;;) {
+			fgets(stroka2, 4096, file_read2);
+			if (stroka1[0] == 7 && stroka1[1] == 3 && stroka1[2] == 5 && stroka1[3] == 9 && stroka1[4] == 2 && stroka1[5] == 7 && stroka1[6] == '\n') {
+				fclose(file_read1);
+				fclose(file_read2);
+				i1 = 0;
+				i2 = 0;
+				break;
+			}
+			if (stroka2[0] == 7 && stroka2[1] == 3 && stroka2[2] == 5 && stroka2[3] == 9 && stroka2[4] == 2 && stroka2[5] == 7 && stroka2[6] == '\n') {
+				fseek(file_read2, 0, SEEK_SET);
+				fgets(stroka2, 4096, file_read2);
+				fgets(stroka2, 4096, file_read2);
+				next_file(file_read1);
+				fgets(stroka1, 4096, file_read1);
+				i1++;
+				i2 = 0;
+				continue;
+			}
+			if (!strcmp(stroka1, stroka2)) {
+
+				dataGridView1->Rows->Add();
+				dataGridView2->Rows->Add();
+				dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = row_cnt + 1;
+				dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Value = row_cnt + 1;
+				col_cnt++;
+
+				checked_file1[i1] = true;
+				checked_file2[i2] = true;
+				if (check_box[0]) {
+					stroka1[strlen(stroka1) - 1] = 0;
+					stroka2[strlen(stroka2) - 1] = 0;
+					dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka1);
+					dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka2);
+					col_cnt++;
+				}
+
+				//размер
+				fgets(stroka1, 4096, file_read1);
+				fgets(stroka2, 4096, file_read2);
+				if (check_box[1]) {
+					stroka1[strlen(stroka1) - 1] = 0;
+					stroka2[strlen(stroka2) - 1] = 0;
+					dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka1);
+					dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka2);
+					if (strcmp(stroka1, stroka2)) {
+						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
+						dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
+					}
+					col_cnt++;
+				}
+
+				//атрибуты безопасности
+				fgets(stroka1, 4096, file_read1);
+				fgets(stroka2, 4096, file_read2);
+				if (check_box[2]) {
+					stroka1[strlen(stroka1) - 2] = 0;
+					stroka2[strlen(stroka2) - 2] = 0;
+					dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka1);
+					dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka2);
+					if (strcmp(stroka1, stroka2)) {
+						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
+						dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
+					}
+					col_cnt++;
+				}
+
+				//альтернативные потоки
+				fgets(stroka1, 4096, file_read1);
+				fgets(stroka2, 4096, file_read2);
+				if (check_box[3]) {
+					stroka1[strlen(stroka1) - 2] = 0;
+					stroka2[strlen(stroka2) - 2] = 0;
+					dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka1);
+					dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
+					dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka2);
+					dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
+					if (strcmp(stroka1, stroka2)) {
+						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
+						dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
+					}
+					col_cnt++;
+				}
+
+				//время1
+				fgets(stroka1, 4096, file_read1);
+				fgets(stroka2, 4096, file_read2);
+				if (check_box[4]) {
+					stroka1[strlen(stroka1) - 1] = 0;
+					stroka2[strlen(stroka2) - 1] = 0;
+					dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka1);
+					dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
+					dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka2);
+					dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
+					if (strcmp(stroka1, stroka2)) {
+						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
+						dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
+					}
+					col_cnt++;
+				}
+
+				//время2
+				fgets(stroka1, 4096, file_read1);
+				fgets(stroka2, 4096, file_read2);
+				if (check_box[5]) {
+					stroka1[strlen(stroka1) - 1] = 0;
+					stroka2[strlen(stroka2) - 1] = 0;
+					dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka1);
+					dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
+					dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka2);
+					dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
+					if (strcmp(stroka1, stroka2)) {
+						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
+						dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
+					}
+					col_cnt++;
+				}
+
+				//время3
+				fgets(stroka1, 4096, file_read1);
+				fgets(stroka2, 4096, file_read2);
+				if (check_box[6]) {
+					stroka1[strlen(stroka1) - 1] = 0;
+					stroka2[strlen(stroka2) - 1] = 0;
+					dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka1);
+					dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
+					dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka2);
+					dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
+					if (strcmp(stroka1, stroka2)) {
+						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
+						dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
+					}
+					col_cnt++;
+				}
+
+				fgets(stroka1, 4096, file_read1);
+				fgets(stroka2, 4096, file_read2);
+				if (strcmp(stroka1, stroka2)) {
+					dataGridView1->Rows[row_cnt]->Cells[1]->Style->BackColor = Color::HotPink;
+					dataGridView2->Rows[row_cnt]->Cells[1]->Style->BackColor = Color::HotPink;
+				}
+
+				fgets(stroka1, 4096, file_read1);
+				fgets(stroka2, 4096, file_read2);
+				if (strcmp(stroka1, stroka2)) {
+					dataGridView1->Rows[row_cnt]->Cells[1]->Style->BackColor = Color::HotPink;
+					dataGridView2->Rows[row_cnt]->Cells[1]->Style->BackColor = Color::HotPink;
+				}
+
+				fgets(stroka1, 4096, file_read1);
+				fgets(stroka2, 4096, file_read2);
+				if (strcmp(stroka1, stroka2)) {
+					dataGridView1->Rows[row_cnt]->Cells[1]->Style->BackColor = Color::HotPink;
+					dataGridView2->Rows[row_cnt]->Cells[1]->Style->BackColor = Color::HotPink;
+				}
+
+				fseek(file_read2, 0, SEEK_SET);
+				fgets(stroka2, 4096, file_read2);
+				fgets(stroka2, 4096, file_read2);
+				fgets(stroka1, 4096, file_read1);
+				row_cnt++;
+				col_cnt = 0;
+				i1++;
+				i2 = 0;
+			}
+			else {
+				next_file(file_read2);
+				i2++;
+			}
 		}
-		if (stroka2[0] == 7 && stroka2[1] == 3 && stroka2[2] == 5 && stroka2[3] == 9 && stroka2[4] == 2 && stroka2[5] == 7 && stroka2[6] == '\n') {
-			fclose(file_read2);
-			file_read2 = fopen(NAME2, "r");
-			fgets(stroka2, 4096, file_read2);
-			fgets(stroka2, 4096, file_read2);
-			next_file(file_read1);
-			fgets(stroka1, 4096, file_read1);
-			i1++;
-			i2 = 0;
-			continue;
+
+		int row_cnt1 = row_cnt;
+		int row_cnt2 = row_cnt;
+
+		if (ff1)
+			file_read1 = _wfopen(TempSnapShot1, TEXT("r"));
+		else
+			file_read1 = _wfopen(path1, TEXT("r"));
+		fgets(stroka1, 4096, file_read1);
+		fgets(stroka1, 4096, file_read1);
+		fgets(stroka1, 4096, file_read1);
+
+		for (int i = 0; i < count1; i++) {
+			if (!checked_file1[i]) {
+
+				col_cnt = 0;
+				dataGridView1->Rows->Add();
+				dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Value = row_cnt1 + 1;
+				dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
+				col_cnt++;
+
+				if (check_box[0]) {
+					stroka1[strlen(stroka1) - 1] = 0;
+					dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Value = gcnew String(stroka1);
+					dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
+					col_cnt++;
+				}
+
+				//размер
+				fgets(stroka1, 4096, file_read1);
+				if (check_box[1]) {
+					stroka1[strlen(stroka1) - 1] = 0;
+					dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Value = gcnew String(stroka1);
+					dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
+					col_cnt++;
+				}
+
+				//атрибуты безопасности
+				fgets(stroka1, 4096, file_read1);
+				if (check_box[2]) {
+					stroka1[strlen(stroka1) - 2] = 0;
+					dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Value = gcnew String(stroka1);
+					dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
+					col_cnt++;
+				}
+
+				//альтернативные потоки
+				fgets(stroka1, 4096, file_read1);
+				if (check_box[3]) {
+					stroka1[strlen(stroka1) - 2] = 0;
+					dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Value = gcnew String(stroka1);
+					dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
+					dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
+					col_cnt++;
+				}
+
+				//время1
+				fgets(stroka1, 4096, file_read1);
+				if (check_box[4]) {
+					stroka1[strlen(stroka1) - 1] = 0;
+					dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Value = gcnew String(stroka1);
+					dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
+					dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
+					col_cnt++;
+				}
+
+				//время2
+				fgets(stroka1, 4096, file_read1);
+				if (check_box[5]) {
+					stroka1[strlen(stroka1) - 1] = 0;
+					dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Value = gcnew String(stroka1);
+					dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
+					dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
+					col_cnt++;
+				}
+
+				//время3
+				fgets(stroka1, 4096, file_read1);
+				if (check_box[6]) {
+					stroka1[strlen(stroka1) - 1] = 0;
+					dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Value = gcnew String(stroka1);
+					dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
+					dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
+					col_cnt++;
+				}
+				fgets(stroka1, 4096, file_read1);
+				fgets(stroka1, 4096, file_read1);
+				fgets(stroka1, 4096, file_read1);
+				fgets(stroka1, 4096, file_read1);
+
+				row_cnt1++;
+			}
+			else {
+				next_file(file_read1);
+				fgets(stroka1, 4096, file_read1);
+			}
 		}
-		if (!strcmp(stroka1, stroka2)) {
+		fclose(file_read1);
 
-			dataGridView1->Rows->Add();
-			dataGridView2->Rows->Add();
+		if (ff2)
+			file_read2 = _wfopen(TempSnapShot2, TEXT("r"));
+		else
+			file_read2 = _wfopen(path2, TEXT("r"));
+		fgets(stroka2, 4096, file_read2);
+		fgets(stroka2, 4096, file_read2);
+		fgets(stroka2, 4096, file_read2);
 
-			checked_file1[i1] = true;
-			checked_file2[i2] = true;
-			if (check_box[0]) {
-				stroka1[strlen(stroka1) - 1] = 0;
-				stroka2[strlen(stroka2) - 1] = 0;
-				dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka1);
-				dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka2);
+		for (int i = 0; i < count2; i++) {
+			if (!checked_file2[i]) {
+
+				col_cnt = 0;
+				dataGridView2->Rows->Add();
+				dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Value = row_cnt2 + 1;
+				dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
 				col_cnt++;
-			}
 
-			//размер
-			fgets(stroka1, 4096, file_read1);
-			fgets(stroka2, 4096, file_read2);
-			if (check_box[1]) {
-				stroka1[strlen(stroka1) - 1] = 0;
-				stroka2[strlen(stroka2) - 1] = 0;
-				dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka1);
-				dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka2);
-				if (strcmp(stroka1, stroka2)) {
-					dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
-					dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
+				if (check_box[0]) {
+					stroka2[strlen(stroka2) - 1] = 0;
+					dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Value = gcnew String(stroka2);
+					dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
+					col_cnt++;
 				}
-				col_cnt++;
-			}
 
-			//атрибуты безопасности
-			fgets(stroka1, 4096, file_read1);
-			fgets(stroka2, 4096, file_read2);
-			if (check_box[2]) {
-				stroka1[strlen(stroka1) - 2] = 0;
-				stroka2[strlen(stroka2) - 2] = 0;
-				dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka1);
-				dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka2);
-				if (strcmp(stroka1, stroka2)) {
-					dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
-					dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
+				//размер
+				fgets(stroka2, 4096, file_read2);
+				if (check_box[1]) {
+					stroka2[strlen(stroka2) - 1] = 0;
+					dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Value = gcnew String(stroka2);
+					dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
+					col_cnt++;
 				}
-				col_cnt++;
-			}
 
-			//альтернативные потоки
-			fgets(stroka1, 4096, file_read1);
-			fgets(stroka2, 4096, file_read2);
-			if (check_box[3]) {
-				stroka1[strlen(stroka1) - 2] = 0;
-				stroka2[strlen(stroka2) - 2] = 0;
-				dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka1);
-				dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka2);
-				if (strcmp(stroka1, stroka2)) {
-					dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
-					dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
+				//атрибуты безопасности
+				fgets(stroka2, 4096, file_read2);
+				if (check_box[2]) {
+					stroka2[strlen(stroka2) - 2] = 0;
+					dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Value = gcnew String(stroka2);
+					dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
+					col_cnt++;
 				}
-				col_cnt++;
-			}
 
-			//время1
-			fgets(stroka1, 4096, file_read1);
-			fgets(stroka2, 4096, file_read2);
-			if (check_box[4]) {
-				stroka1[strlen(stroka1) - 1] = 0;
-				stroka2[strlen(stroka2) - 1] = 0;
-				dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka1);
-				dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka2);
-				if (strcmp(stroka1, stroka2)) {
-					dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
-					dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
+				//альтернативные потоки
+				fgets(stroka2, 4096, file_read2);
+				if (check_box[3]) {
+					stroka2[strlen(stroka2) - 2] = 0;
+					dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Value = gcnew String(stroka2);
+					dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
+					dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
+					col_cnt++;
 				}
-				col_cnt++;
-			}
 
-			//время2
-			fgets(stroka1, 4096, file_read1);
-			fgets(stroka2, 4096, file_read2);
-			if (check_box[5]) {
-				stroka1[strlen(stroka1) - 1] = 0;
-				stroka2[strlen(stroka2) - 1] = 0;
-				dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka1);
-				dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka2);
-				if (strcmp(stroka1, stroka2)) {
-					dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
-					dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
+				//время1
+				fgets(stroka2, 4096, file_read2);
+				if (check_box[4]) {
+					stroka2[strlen(stroka2) - 1] = 0;
+					dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Value = gcnew String(stroka2);
+					dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
+					dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
+					col_cnt++;
 				}
-				col_cnt++;
-			}
 
-			//время3
-			fgets(stroka1, 4096, file_read1);
-			fgets(stroka2, 4096, file_read2);
-			if (check_box[6]) {
-				stroka1[strlen(stroka1) - 1] = 0;
-				stroka2[strlen(stroka2) - 1] = 0;
-				dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka1);
-				dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka2);
-				if (strcmp(stroka1, stroka2)) {
-					dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
-					dataGridView2->Rows[row_cnt]->Cells[col_cnt]->Style->BackColor = Color::LightCoral;
+				//время2
+				fgets(stroka2, 4096, file_read2);
+				if (check_box[5]) {
+					stroka2[strlen(stroka2) - 1] = 0;
+					dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Value = gcnew String(stroka2);
+					dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
+					dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
+					col_cnt++;
 				}
-				col_cnt++;
-			}
 
-			fgets(stroka1, 4096, file_read1);
-			fgets(stroka2, 4096, file_read2);
-			if (strcmp(stroka1, stroka2)) {
-				//fill_row_compare(); //если хэш изменился
-			}
+				//время3
+				fgets(stroka2, 4096, file_read2);
+				if (check_box[6]) {
+					stroka2[strlen(stroka2) - 1] = 0;
+					dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Value = gcnew String(stroka2);
+					dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
+					dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
+					col_cnt++;
+				}
+				fgets(stroka2, 4096, file_read2);
+				fgets(stroka2, 4096, file_read2);
+				fgets(stroka2, 4096, file_read2);
+				fgets(stroka2, 4096, file_read2);
 
-			fgets(stroka1, 4096, file_read1);
-			fgets(stroka2, 4096, file_read2);
-			if (strcmp(stroka1, stroka2)) {
-				//fill_row_compare(); //если хэш изменился
+				row_cnt2++;
 			}
-
-			fgets(stroka1, 4096, file_read1);
-			fgets(stroka2, 4096, file_read2);
-			if (strcmp(stroka1, stroka2)) {
-				//fill_row_compare(); //если хэш изменился
+			else {
+				next_file(file_read2);
+				fgets(stroka2, 4096, file_read2);
 			}
-
-			fgets(stroka1, 4096, file_read1);
-			fgets(stroka2, 4096, file_read2);
-			if (strcmp(stroka1, stroka2)) {
-				dataGridView1->Rows[row_cnt]->Cells[0]->Style->BackColor = Color::HotPink;
-				dataGridView2->Rows[row_cnt]->Cells[0]->Style->BackColor = Color::HotPink;
-			}
-
-			fgets(stroka1, 4096, file_read1);
-			fgets(stroka2, 4096, file_read2);
-			if (strcmp(stroka1, stroka2)) {
-				dataGridView1->Rows[row_cnt]->Cells[0]->Style->BackColor = Color::HotPink;
-				dataGridView2->Rows[row_cnt]->Cells[0]->Style->BackColor = Color::HotPink;
-			}
-
-			fgets(stroka1, 4096, file_read1);
-			fgets(stroka2, 4096, file_read2);
-			if (strcmp(stroka1, stroka2)) {
-				dataGridView1->Rows[row_cnt]->Cells[0]->Style->BackColor = Color::HotPink;
-				dataGridView2->Rows[row_cnt]->Cells[0]->Style->BackColor = Color::HotPink;
-			}
-
-			fclose(file_read2);
-			file_read2 = fopen(NAME2, "r");
-			fgets(stroka2, 4096, file_read2);
-			fgets(stroka2, 4096, file_read2);
-			fgets(stroka1, 4096, file_read1);
-			row_cnt++;
-			col_cnt = 0;
-			i1++;
-			i2 = 0;
 		}
-		else {
-			next_file(file_read2);
-			i2++;
-		}
+		fclose(file_read2);
+
+		delete[] stroka2;
+		delete[] stroka1;
+
+		dataGridView1->ClearSelection();
+		dataGridView2->ClearSelection();
+
+		dataGridView1->AutoResizeRows();
+		dataGridView2->AutoResizeRows();
+
+		delete[] path2;
+		delete[] path1;
 	}
-
-	int row_cnt1 = row_cnt;
-	int row_cnt2 = row_cnt;
-
-	file_read1 = fopen(NAME1, "r");
-	fgets(stroka1, 4096, file_read1);
-	fgets(stroka1, 4096, file_read1);
-	fgets(stroka1, 4096, file_read1);
-
-	for (int i = 0; i < count1; i++) {
-		if (!checked_file1[i]) {
-
-			col_cnt = 0;
-			dataGridView1->Rows->Add();
-
-			if (check_box[0]) {
-				stroka1[strlen(stroka1) - 1] = 0;
-				dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Value = gcnew String(stroka1);
-				dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
-				col_cnt++;
-			}
-
-			//размер
-			fgets(stroka1, 4096, file_read1);
-			if (check_box[1]) {
-				stroka1[strlen(stroka1) - 1] = 0;
-				dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Value = gcnew String(stroka1);
-				dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
-				col_cnt++;
-			}
-
-			//атрибуты безопасности
-			fgets(stroka1, 4096, file_read1);
-			if (check_box[2]) {
-				stroka1[strlen(stroka1) - 2] = 0;
-				dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Value = gcnew String(stroka1);
-				dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
-				col_cnt++;
-			}
-
-			//альтернативные потоки
-			fgets(stroka1, 4096, file_read1);
-			if (check_box[3]) {
-				stroka1[strlen(stroka1) - 2] = 0;
-				dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Value = gcnew String(stroka1);
-				dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
-				col_cnt++;
-			}
-
-			//время1
-			fgets(stroka1, 4096, file_read1);
-			if (check_box[4]) {
-				stroka1[strlen(stroka1) - 1] = 0;
-				dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Value = gcnew String(stroka1);
-				dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
-				col_cnt++;
-			}
-
-			//время2
-			fgets(stroka1, 4096, file_read1);
-			if (check_box[5]) {
-				stroka1[strlen(stroka1) - 1] = 0;
-				dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Value = gcnew String(stroka1);
-				dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
-				col_cnt++;
-			}
-
-			//время3
-			fgets(stroka1, 4096, file_read1);
-			if (check_box[6]) {
-				stroka1[strlen(stroka1) - 1] = 0;
-				dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Value = gcnew String(stroka1);
-				dataGridView1->Rows[row_cnt1]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
-				col_cnt++;
-			}
-			fgets(stroka1, 4096, file_read1);
-			fgets(stroka1, 4096, file_read1);
-			fgets(stroka1, 4096, file_read1);
-			fgets(stroka1, 4096, file_read1);
-			fgets(stroka1, 4096, file_read1);
-			fgets(stroka1, 4096, file_read1);
-			fgets(stroka1, 4096, file_read1);
-
-			row_cnt1++;
-		}
-		else {
-			next_file(file_read1);
-			fgets(stroka1, 4096, file_read1);
-		}
+	else {
+		fclose(file_read1);
+		fclose(file_read2);
+		delete[] stroka2;
+		delete[] stroka1;
+		delete[] path2;
+		delete[] path1;
+		MessageBox::Show("The snapshot(s) is(are) corrupted", "Error", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
 	}
-	fclose(file_read1);
-
-	file_read2 = fopen(NAME2, "r");
-	fgets(stroka2, 4096, file_read2);
-	fgets(stroka2, 4096, file_read2);
-	fgets(stroka2, 4096, file_read2);
-
-	for (int i = 0; i < count2; i++) {
-		if (!checked_file2[i]) {
-
-			col_cnt = 0;
-			dataGridView2->Rows->Add();
-
-			if (check_box[0]) {
-				stroka2[strlen(stroka2) - 1] = 0;
-				dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Value = gcnew String(stroka2);
-				dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
-				col_cnt++;
-			}
-
-			//размер
-			fgets(stroka2, 4096, file_read2);
-			if (check_box[1]) {
-				stroka2[strlen(stroka2) - 1] = 0;
-				dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Value = gcnew String(stroka2);
-				dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
-				col_cnt++;
-			}
-
-			//атрибуты безопасности
-			fgets(stroka2, 4096, file_read2);
-			if (check_box[2]) {
-				stroka2[strlen(stroka2) - 2] = 0;
-				dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Value = gcnew String(stroka2);
-				dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
-				col_cnt++;
-			}
-
-			//альтернативные потоки
-			fgets(stroka2, 4096, file_read2);
-			if (check_box[3]) {
-				stroka2[strlen(stroka2) - 2] = 0;
-				dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Value = gcnew String(stroka2);
-				dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
-				col_cnt++;
-			}
-
-			//время1
-			fgets(stroka2, 4096, file_read2);
-			if (check_box[4]) {
-				stroka2[strlen(stroka2) - 1] = 0;
-				dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Value = gcnew String(stroka2);
-				dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
-				col_cnt++;
-			}
-
-			//время2
-			fgets(stroka2, 4096, file_read2);
-			if (check_box[5]) {
-				stroka2[strlen(stroka2) - 1] = 0;
-				dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Value = gcnew String(stroka2);
-				dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
-				col_cnt++;
-			}
-
-			//время3
-			fgets(stroka2, 4096, file_read2);
-			if (check_box[6]) {
-				stroka2[strlen(stroka2) - 1] = 0;
-				dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Value = gcnew String(stroka2);
-				dataGridView2->Rows[row_cnt2]->Cells[col_cnt]->Style->BackColor = Color::LightYellow;
-				col_cnt++;
-			}
-			fgets(stroka2, 4096, file_read2);
-			fgets(stroka2, 4096, file_read2);
-			fgets(stroka2, 4096, file_read2);
-			fgets(stroka2, 4096, file_read2);
-			fgets(stroka2, 4096, file_read2);
-			fgets(stroka2, 4096, file_read2);
-			fgets(stroka2, 4096, file_read2);
-
-			row_cnt2++;
-		}
-		else {
-			next_file(file_read2);
-			fgets(stroka2, 4096, file_read2);
-		}
-	}
-	fclose(file_read2);
-
-	delete[] NAME2;
-	delete[] NAME1;
-	delete[] stroka2;
-	delete[] stroka1;
-
-	dataGridView1->ClearSelection();
-	dataGridView2->ClearSelection();
-
-	delete[] path2;
-	delete[] path1;
 }
 private: System::Void dataGridView1_SizeChanged(System::Object^ sender, System::EventArgs^ e) {
 	if (!dataGridView1->ColumnCount) return;
@@ -767,32 +720,35 @@ private: System::Void dataGridView1_SizeChanged(System::Object^ sender, System::
 		sum += check_box[i];
 	if (!dataGridView1->ColumnCount)
 		return;
+	dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = 40;
+	count--;
+	int width = dataGridView1->Width - 40;
 	if (sum > 1) {
-		dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.35;
+		dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.25;
 		sum--;
 		count--;
 		if (check_box[1] == true) {
-			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
+			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.75 / sum;
 			count--;
 		}
 		if (check_box[2] == true) {
-			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
+			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.75 / sum;
 			count--;
 		}
 		if (check_box[3] == true) {
-			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
+			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.75 / sum;
 			count--;
 		}
 		if (check_box[4] == true) {
-			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
+			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.75 / sum;
 			count--;
 		}
 		if (check_box[5] == true) {
-			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
+			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.75 / sum;
 			count--;
 		}
 		if (check_box[6] == true) {
-			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView1->Width * 0.65 / sum;
+			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.75 / sum;
 		}
 	}
 	else
@@ -800,38 +756,40 @@ private: System::Void dataGridView1_SizeChanged(System::Object^ sender, System::
 }
 private: System::Void dataGridView2_SizeChanged(System::Object^ sender, System::EventArgs^ e) {
 	if (!dataGridView2->ColumnCount) return;
-
 	int sum = 0, count = dataGridView2->ColumnCount;
 	for (int i = 0; i < 7; i++)
 		sum += check_box[i];
 	if (!dataGridView2->ColumnCount)
 		return;
+	dataGridView2->Columns[dataGridView1->ColumnCount - count]->Width = 40;
+	count--;
+	int width = dataGridView2->Width - 40;
 	if (sum > 1) {
-		dataGridView2->Columns[dataGridView1->ColumnCount - count]->Width = dataGridView2->Width * 0.35;
+		dataGridView2->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.25;
 		sum--;
 		count--;
 		if (check_box[1] == true) {
-			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width * 0.65 / sum;
+			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = width * 0.75 / sum;
 			count--;
 		}
 		if (check_box[2] == true) {
-			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width * 0.65 / sum;
+			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = width * 0.75 / sum;
 			count--;
 		}
 		if (check_box[3] == true) {
-			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width * 0.65 / sum;
+			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = width * 0.75 / sum;
 			count--;
 		}
 		if (check_box[4] == true) {
-			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width * 0.65 / sum;
+			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = width * 0.75 / sum;
 			count--;
 		}
 		if (check_box[5] == true) {
-			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width * 0.65 / sum;
+			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = width * 0.75 / sum;
 			count--;
 		}
 		if (check_box[6] == true) {
-			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = dataGridView2->Width * 0.65 / sum;
+			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = width * 0.75 / sum;
 		}
 	}
 	else
@@ -849,15 +807,5 @@ private: System::Void dataGridView2_CellClick(System::Object^ sender, System::Wi
 private: System::Void dataGridView2_CellDoubleClick(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e) {
 	dataGridView2->ClearSelection();
 }
-private: System::Void dataGridView1_CellMouseEnter(System::Object^ sender, DataGridViewCellEventArgs^ e) {
-	toolTip1->Active = true;
-	//if (e->RowIndex >= 0) // проверяем, что мышь наведена на реальную строку, а не на заголовок
-	//{
-		//String^ tooltip = "Подсказка для строки " + e->RowIndex; // текст подсказки
-		//ToolTip^ tooltipControl = gcnew ToolTip(); // создаем экземпляр класса ToolTip
-		//tooltipControl->SetToolTip(dataGridView1, tooltip); // устанавливаем подсказку для всего DataGridView
-	//}
-}
-
 };
 }

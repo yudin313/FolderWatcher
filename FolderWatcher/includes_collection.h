@@ -1,5 +1,7 @@
 #pragma once
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -25,15 +27,15 @@ extern TCHAR* TempSnapShot2;
 void setup(void);
 void deinit(void);
 
-int is_file_or_folder(char*);
-void file_information(char*, char*);
+int is_file_or_folder(TCHAR*);
+void file_information(TCHAR*, TCHAR*);
 void next_file(FILE* file_read);
 
 /*
 * button1 - browse
 * button2 - snapshot
 * button3 - refresh
-* button4 - export
+* button4 - import
 * button5 - parameters
 * button6 - logs
 * button7 - compare

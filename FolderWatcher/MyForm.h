@@ -8,10 +8,9 @@
 
 #pragma comment(lib, "shell32.lib")
 
-bool button5_first = 0;
-bool button5_first_click = 0;
-char* save_path;
-char* last_saved_path;
+TCHAR* save_path;
+bool flag = false;
+
 namespace Example {
 
 	using namespace System;
@@ -46,8 +45,6 @@ namespace Example {
 	private: System::Windows::Forms::ToolStripMenuItem^ toolStripMenuItem1;
 	private: System::Windows::Forms::ToolStripMenuItem^ deleteToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ openToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^ refreshToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^ exportToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ propetiesToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ firstStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ secondStripMenuItem;
@@ -499,11 +496,12 @@ namespace Example {
 		void InitializeComponent(void)
 		{
 			this->components = (gcnew System::ComponentModel::Container());
-			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle1 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
-			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle2 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
-			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle3 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
-			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle4 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
-			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle5 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle6 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle7 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle8 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle9 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle10 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
+			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
 			this->folderBrowserDialog1 = (gcnew System::Windows::Forms::FolderBrowserDialog());
 			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
 			this->fileToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -535,8 +533,6 @@ namespace Example {
 			this->toolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->deleteToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->openToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->refreshToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->exportToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->propetiesToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->toolTip1 = (gcnew System::Windows::Forms::ToolTip(this->components));
 			this->button1 = (gcnew System::Windows::Forms::Button());
@@ -795,31 +791,31 @@ namespace Example {
 			// 
 			this->dataGridView1->AllowUserToAddRows = false;
 			this->dataGridView1->AllowUserToDeleteRows = false;
-			dataGridViewCellStyle1->BackColor = System::Drawing::Color::White;
-			this->dataGridView1->AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+			dataGridViewCellStyle6->BackColor = System::Drawing::Color::White;
+			this->dataGridView1->AlternatingRowsDefaultCellStyle = dataGridViewCellStyle6;
 			this->dataGridView1->BackgroundColor = System::Drawing::Color::WhiteSmoke;
 			this->dataGridView1->ColumnHeadersBorderStyle = System::Windows::Forms::DataGridViewHeaderBorderStyle::Single;
-			dataGridViewCellStyle2->Alignment = System::Windows::Forms::DataGridViewContentAlignment::TopLeft;
-			dataGridViewCellStyle2->BackColor = System::Drawing::Color::Silver;
-			dataGridViewCellStyle2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+			dataGridViewCellStyle7->Alignment = System::Windows::Forms::DataGridViewContentAlignment::TopLeft;
+			dataGridViewCellStyle7->BackColor = System::Drawing::Color::Silver;
+			dataGridViewCellStyle7->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			dataGridViewCellStyle2->ForeColor = System::Drawing::SystemColors::WindowText;
-			dataGridViewCellStyle2->SelectionBackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(255)),
+			dataGridViewCellStyle7->ForeColor = System::Drawing::SystemColors::WindowText;
+			dataGridViewCellStyle7->SelectionBackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(255)),
 				static_cast<System::Int32>(static_cast<System::Byte>(192)), static_cast<System::Int32>(static_cast<System::Byte>(128)));
-			dataGridViewCellStyle2->SelectionForeColor = System::Drawing::Color::Gray;
-			dataGridViewCellStyle2->WrapMode = System::Windows::Forms::DataGridViewTriState::False;
-			this->dataGridView1->ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+			dataGridViewCellStyle7->SelectionForeColor = System::Drawing::Color::Gray;
+			dataGridViewCellStyle7->WrapMode = System::Windows::Forms::DataGridViewTriState::False;
+			this->dataGridView1->ColumnHeadersDefaultCellStyle = dataGridViewCellStyle7;
 			this->dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
 			this->dataGridView1->ContextMenuStrip = this->contextMenuStrip1;
-			dataGridViewCellStyle3->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleLeft;
-			dataGridViewCellStyle3->BackColor = System::Drawing::Color::Black;
-			dataGridViewCellStyle3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+			dataGridViewCellStyle8->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleLeft;
+			dataGridViewCellStyle8->BackColor = System::Drawing::Color::Black;
+			dataGridViewCellStyle8->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			dataGridViewCellStyle3->ForeColor = System::Drawing::Color::White;
-			dataGridViewCellStyle3->SelectionBackColor = System::Drawing::SystemColors::Highlight;
-			dataGridViewCellStyle3->SelectionForeColor = System::Drawing::SystemColors::HighlightText;
-			dataGridViewCellStyle3->WrapMode = System::Windows::Forms::DataGridViewTriState::False;
-			this->dataGridView1->DefaultCellStyle = dataGridViewCellStyle3;
+			dataGridViewCellStyle8->ForeColor = System::Drawing::Color::White;
+			dataGridViewCellStyle8->SelectionBackColor = System::Drawing::SystemColors::Highlight;
+			dataGridViewCellStyle8->SelectionForeColor = System::Drawing::SystemColors::HighlightText;
+			dataGridViewCellStyle8->WrapMode = System::Windows::Forms::DataGridViewTriState::False;
+			this->dataGridView1->DefaultCellStyle = dataGridViewCellStyle8;
 			this->dataGridView1->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->dataGridView1->EnableHeadersVisualStyles = false;
 			this->dataGridView1->GridColor = System::Drawing::Color::Silver;
@@ -828,37 +824,36 @@ namespace Example {
 			this->dataGridView1->Margin = System::Windows::Forms::Padding(2);
 			this->dataGridView1->Name = L"dataGridView1";
 			this->dataGridView1->RowHeadersBorderStyle = System::Windows::Forms::DataGridViewHeaderBorderStyle::Single;
-			dataGridViewCellStyle4->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleLeft;
-			dataGridViewCellStyle4->BackColor = System::Drawing::Color::White;
-			dataGridViewCellStyle4->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+			dataGridViewCellStyle9->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleLeft;
+			dataGridViewCellStyle9->BackColor = System::Drawing::Color::White;
+			dataGridViewCellStyle9->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			dataGridViewCellStyle4->ForeColor = System::Drawing::Color::White;
-			dataGridViewCellStyle4->SelectionBackColor = System::Drawing::Color::White;
-			dataGridViewCellStyle4->SelectionForeColor = System::Drawing::Color::White;
-			dataGridViewCellStyle4->WrapMode = System::Windows::Forms::DataGridViewTriState::True;
-			this->dataGridView1->RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
+			dataGridViewCellStyle9->ForeColor = System::Drawing::Color::White;
+			dataGridViewCellStyle9->SelectionBackColor = System::Drawing::Color::White;
+			dataGridViewCellStyle9->SelectionForeColor = System::Drawing::Color::White;
+			dataGridViewCellStyle9->WrapMode = System::Windows::Forms::DataGridViewTriState::True;
+			this->dataGridView1->RowHeadersDefaultCellStyle = dataGridViewCellStyle9;
 			this->dataGridView1->RowHeadersVisible = false;
 			this->dataGridView1->RowHeadersWidth = 51;
-			dataGridViewCellStyle5->BackColor = System::Drawing::Color::White;
-			dataGridViewCellStyle5->ForeColor = System::Drawing::Color::Black;
-			dataGridViewCellStyle5->SelectionBackColor = System::Drawing::Color::LightGray;
-			dataGridViewCellStyle5->SelectionForeColor = System::Drawing::Color::Black;
-			this->dataGridView1->RowsDefaultCellStyle = dataGridViewCellStyle5;
+			dataGridViewCellStyle10->BackColor = System::Drawing::Color::White;
+			dataGridViewCellStyle10->ForeColor = System::Drawing::Color::Black;
+			dataGridViewCellStyle10->SelectionBackColor = System::Drawing::Color::LightGray;
+			dataGridViewCellStyle10->SelectionForeColor = System::Drawing::Color::Black;
+			this->dataGridView1->RowsDefaultCellStyle = dataGridViewCellStyle10;
 			this->dataGridView1->RowTemplate->Height = 24;
 			this->dataGridView1->SelectionMode = System::Windows::Forms::DataGridViewSelectionMode::CellSelect;
 			this->dataGridView1->Size = System::Drawing::Size(801, 328);
 			this->dataGridView1->TabIndex = 0;
 			this->dataGridView1->Visible = false;
-			this->dataGridView1->CellContentClick += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &MyForm::dataGridView1_CellContentClick);
 			this->dataGridView1->CellDoubleClick += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &MyForm::dataGridView1_CellDoubleClick);
 			this->dataGridView1->SizeChanged += gcnew System::EventHandler(this, &MyForm::dataGridView1_SizeChanged);
 			// 
 			// contextMenuStrip1
 			// 
 			this->contextMenuStrip1->ImageScalingSize = System::Drawing::Size(20, 20);
-			this->contextMenuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(6) {
+			this->contextMenuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
 				this->toolStripMenuItem1,
-					this->deleteToolStripMenuItem, this->openToolStripMenuItem, this->refreshToolStripMenuItem, this->exportToolStripMenuItem, this->propetiesToolStripMenuItem
+					this->deleteToolStripMenuItem, this->openToolStripMenuItem, this->propetiesToolStripMenuItem
 			});
 			this->contextMenuStrip1->Name = L"contextMenuStrip1";
 			this->contextMenuStrip1->Size = System::Drawing::Size(165, 136);
@@ -868,7 +863,7 @@ namespace Example {
 			this->toolStripMenuItem1->Name = L"toolStripMenuItem1";
 			this->toolStripMenuItem1->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::C));
 			this->toolStripMenuItem1->Size = System::Drawing::Size(164, 22);
-			this->toolStripMenuItem1->Text = L"Copy";
+			this->toolStripMenuItem1->Text = L"Copy the filename";
 			this->toolStripMenuItem1->Click += gcnew System::EventHandler(this, &MyForm::toolStripMenuItem1_Click);
 			// 
 			// deleteToolStripMenuItem
@@ -886,22 +881,6 @@ namespace Example {
 			this->openToolStripMenuItem->Size = System::Drawing::Size(164, 22);
 			this->openToolStripMenuItem->Text = L"Open";
 			this->openToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::openToolStripMenuItem_Click);
-			// 
-			// refreshToolStripMenuItem
-			// 
-			this->refreshToolStripMenuItem->Name = L"refreshToolStripMenuItem";
-			this->refreshToolStripMenuItem->ShortcutKeys = System::Windows::Forms::Keys::F5;
-			this->refreshToolStripMenuItem->Size = System::Drawing::Size(164, 22);
-			this->refreshToolStripMenuItem->Text = L"Refresh";
-			this->refreshToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::refreshToolStripMenuItem_Click);
-			// 
-			// exportToolStripMenuItem
-			// 
-			this->exportToolStripMenuItem->Name = L"exportToolStripMenuItem";
-			this->exportToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::E));
-			this->exportToolStripMenuItem->Size = System::Drawing::Size(164, 22);
-			this->exportToolStripMenuItem->Text = L"Export";
-			this->exportToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::exportToolStripMenuItem_Click);
 			// 
 			// propetiesToolStripMenuItem
 			// 
@@ -982,8 +961,8 @@ namespace Example {
 			this->button4->Name = L"button4";
 			this->button4->Size = System::Drawing::Size(112, 25);
 			this->button4->TabIndex = 16;
-			this->button4->Text = L"   Export";
-			this->toolTip1->SetToolTip(this->button4, L"Export existing snapshots");
+			this->button4->Text = L"   Import";
+			this->toolTip1->SetToolTip(this->button4, L"Import existing snapshots");
 			this->button4->UseVisualStyleBackColor = false;
 			this->button4->Click += gcnew System::EventHandler(this, &MyForm::button4_Click);
 			// 
@@ -1229,7 +1208,7 @@ namespace Example {
 			this->tableLayoutPanel7->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Percent,
 				89.32039F)));
 			this->tableLayoutPanel7->ColumnStyles->Add((gcnew System::Windows::Forms::ColumnStyle(System::Windows::Forms::SizeType::Absolute,
-				392)));
+				376)));
 			this->tableLayoutPanel7->Controls->Add(this->panel2, 1, 0);
 			this->tableLayoutPanel7->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->tableLayoutPanel7->Location = System::Drawing::Point(2, 429);
@@ -1246,11 +1225,11 @@ namespace Example {
 			this->panel2->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
 			this->panel2->Controls->Add(this->tableLayoutPanel9);
 			this->panel2->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->panel2->Location = System::Drawing::Point(59, 2);
+			this->panel2->Location = System::Drawing::Point(61, 2);
 			this->panel2->Margin = System::Windows::Forms::Padding(2);
 			this->panel2->MaximumSize = System::Drawing::Size(750, 122);
 			this->panel2->Name = L"panel2";
-			this->panel2->Size = System::Drawing::Size(476, 57);
+			this->panel2->Size = System::Drawing::Size(490, 57);
 			this->panel2->TabIndex = 17;
 			// 
 			// tableLayoutPanel9
@@ -1296,6 +1275,7 @@ namespace Example {
 			// backgroundWorker1
 			// 
 			this->backgroundWorker1->DoWork += gcnew System::ComponentModel::DoWorkEventHandler(this, &MyForm::backgroundWorker1_DoWork);
+			this->backgroundWorker1->RunWorkerCompleted += gcnew RunWorkerCompletedEventHandler(this, &MyForm::backgroundWorker1_RunWorkerCompleted);
 			// 
 			// MyForm
 			// 
@@ -1307,6 +1287,7 @@ namespace Example {
 			this->Controls->Add(this->tableLayoutPanel2);
 			this->Controls->Add(this->statusStrip1);
 			this->Controls->Add(this->menuStrip1);
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->Margin = System::Windows::Forms::Padding(2);
 			this->MinimumSize = System::Drawing::Size(950, 581);
 			this->Name = L"MyForm";
@@ -1387,7 +1368,7 @@ namespace Example {
 		exit(0);
 	}
 	private: System::Void справкаToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-		MessageBox::Show("Описание функционала", "Help",
+		MessageBox::Show("Если в каком-то из путей встретится ё, пиши пропало", "Content",
 			MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
 	}
 	private: System::Void оПрограммеToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -1399,35 +1380,7 @@ namespace Example {
 		toolStripStatusLabel4->Text = "Ready";
 		OpenFileDialog^ openFileDialog1 = gcnew OpenFileDialog();
 		openFileDialog1->Filter = "Snapshot files (*.snpsht)|*.snpsht";
-		std::string path;
-		if (last_saved_path == NULL) {
-			wchar_t Folder[1024];
-			HRESULT hr = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, Folder);
-			if (SUCCEEDED(hr))
-			{
-				char str[1024];
-				wcstombs(str, Folder, 1023);
-			}
-			char tmp[17] = "\\FolderWatcher";
-			int Folder_len = 0;
-			for (int i = 0; Folder[i] != '\0'; i++)
-			{
-				path += Folder[i];
-				Folder_len++;
-			}
-			for (int i = 0; i < 17; i++) {
-				path += wchar_t(tmp[i]);
-			}
-		}
-		else {
-			int len = strlen(last_saved_path);
-			for (int i = 0; i < len; i++) {
-				path += wchar_t(last_saved_path[i]);
-			}
-			path = path.substr(0, path.find_last_of("\\"));
-		}
-		System::String^ new_path = msclr::interop::marshal_as<System::String^>(path);
-		openFileDialog1->InitialDirectory = new_path;
+		openFileDialog1->InitialDirectory = "";
 		System::Windows::Forms::DialogResult result=openFileDialog1->ShowDialog();
 		String^ fileName = openFileDialog1->FileName;
 		if (result == System::Windows::Forms::DialogResult::OK) {
@@ -1437,16 +1390,14 @@ namespace Example {
 			dataGridView1->Rows->Clear();
 			dataGridView1->Columns->Clear();
 
-			std::string temp = msclr::interop::marshal_as<std::string>(openFileDialog1->FileName);
-			char* snapshot = new char[temp.length() + 1];
-			strcpy(snapshot, temp.c_str());
+			std::wstring str = msclr::interop::marshal_as<std::wstring>(openFileDialog1->FileName);
+			TCHAR* snapshot = new TCHAR[str.length() + 1];
+			wcscpy(snapshot, str.c_str());
 
 			//перенес бэкенд сюда - было самым простым решением
 
-			FILE* file_read = fopen(snapshot, "r");
+			FILE* file_read = _wfopen(snapshot, TEXT("r"));
 			char* stroka = new char[4096];
-
-			int col_cnt = 0;
 
 			fgets(stroka, 8, file_read);
 			if (stroka[0] == 7 && stroka[1] == 3 && stroka[2] == 5 && stroka[3] == 9 && stroka[4] == 2 && stroka[5] == 7 && stroka[6] == '\n') {
@@ -1501,6 +1452,7 @@ namespace Example {
 					if (check_box[3]) {
 						stroka[strlen(stroka) - 2] = 0;
 						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka);
+						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
 						col_cnt++;
 					}
 
@@ -1509,6 +1461,7 @@ namespace Example {
 					if (check_box[4]) {
 						stroka[strlen(stroka) - 1] = 0;
 						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka);
+						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
 						col_cnt++;
 					}
 
@@ -1517,6 +1470,7 @@ namespace Example {
 					if (check_box[5]) {
 						stroka[strlen(stroka) - 1] = 0;
 						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka);
+						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
 						col_cnt++;
 					}
 
@@ -1525,11 +1479,9 @@ namespace Example {
 					if (check_box[6]) {
 						stroka[strlen(stroka) - 1] = 0;
 						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Value = gcnew String(stroka);
+						dataGridView1->Rows[row_cnt]->Cells[col_cnt]->Style->WrapMode = DataGridViewTriState::True;
 						col_cnt++;
 					}
-					fgets(stroka, 4096, file_read);
-					fgets(stroka, 4096, file_read);
-					fgets(stroka, 4096, file_read);
 					fgets(stroka, 4096, file_read);
 					fgets(stroka, 4096, file_read);
 					fgets(stroka, 4096, file_read);
@@ -1537,15 +1489,18 @@ namespace Example {
 					row_cnt++;
 				}
 
-				ChangeMode();
+				//ChangeMode();
 				dataGridView1->Visible = true;
 				dataGridView1->ClearSelection();
+				dataGridView1->AutoResizeRows();
+
+				button7->Enabled = true;
 			}
+			else
+				MessageBox::Show("The snapshot is corrupted", "Error", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
 			delete[] stroka;
 			fclose(file_read);
 			delete[] snapshot;
-
-			button7->Enabled = true;
 		}
 	}
 	private: System::Void button5_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -1862,8 +1817,9 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 		SaveFileDialog->CheckPathExists = true;
 		SaveFileDialog->AddExtension = false;
 		System::Windows::Forms::DialogResult result = SaveFileDialog->ShowDialog();
-		save_path = (char*)System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(SaveFileDialog->FileName).ToPointer();
-		last_saved_path = save_path;
+		std::wstring str = msclr::interop::marshal_as<std::wstring>(SaveFileDialog->FileName);
+		save_path = new TCHAR[str.length() + 1];
+		wcscpy(save_path, str.c_str());
 		String^ path = SaveFileDialog->FileName;
 		if (File::Exists(path))
 		{
@@ -1878,10 +1834,23 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 		SaveFileDialog->FileName = path;
 
 		if (result == System::Windows::Forms::DialogResult::OK) {
-			backgroundWorker1->RunWorkerAsync();
 
-			//закоментил ибо бэкграундворкеру нужен путь до папки, а не до слепка
-			//textBox1->Text = SaveFileDialog->FileName;
+			button1->Enabled = false;
+			button2->Enabled = false;
+			button3->Enabled = false;
+			button4->Enabled = false;
+			button5->Enabled = false;
+			button6->Enabled = false;
+			button7->Enabled = false;
+			textBox1->Enabled = false;
+			contextMenuStrip1->Enabled = false;
+			instrumentsToolStripMenuItem->Enabled = false;
+			parametersToolStripMenuItem->Enabled = false;
+
+			toolStripStatusLabel4->Text = "Running";
+			toolStripStatusLabel4->Image = Image::FromFile("Images\\progress.gif");
+
+			backgroundWorker1->RunWorkerAsync();
 		}
 	}
 	private: System::Void button7_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -1910,37 +1879,31 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 		}
 		String^ path_to_first_table = textBox1->Text;
 		String^ path_to_second_table = msclr::interop::marshal_as<String^>(szFolderPath);
-		if (path_to_second_table != "") {
+		if (path_to_first_table == path_to_second_table)
+			MessageBox::Show("The same paths are given", "Error", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+		else if (path_to_second_table != "") {
 			New::Compare^ f = gcnew New::Compare(gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid), path_to_first_table, path_to_second_table);
 			f->ShowDialog();
 		}
 	}
 	private: System::Void backgroundWorker1_DoWork(System::Object^ sender, System::ComponentModel::DoWorkEventArgs^ e) {
 
-		button1->Enabled = false;
-		button2->Enabled = false;
-		button3->Enabled = false;
-		button4->Enabled = false;
-		button5->Enabled = false;
-		button6->Enabled = false;
-		button7->Enabled = false;
-		textBox1->Enabled = false;
-		contextMenuStrip1->Enabled = false;
-		instrumentsToolStripMenuItem->Enabled = false;
-		parametersToolStripMenuItem->Enabled = false;
-
-		toolStripStatusLabel4->Text = "Running";
-		toolStripStatusLabel4->Image = Image::FromFile("Images\\progress.gif");
-
 		// make snapshot
-		// Converting from System::String^ to std::string and to char*
-		std::string temp = msclr::interop::marshal_as<std::string>(textBox1->Text);
-		char* directory = new char[temp.length() + 1];
-		strcpy(directory, temp.c_str());
-		file_information(directory, save_path);
+		std::wstring str = msclr::interop::marshal_as<std::wstring>(textBox1->Text);
+		TCHAR* directory = new TCHAR[str.length() + 1];
+		wcscpy(directory, str.c_str());
+
+		if (wcsncmp(directory, save_path, wcslen(directory)))
+			file_information(directory, save_path);
+		else
+			flag = true;
+
 		delete[] directory;
+		delete[] save_path;
 		//
 
+	}
+	private: System::Void MyForm::backgroundWorker1_RunWorkerCompleted(System::Object^ sender, RunWorkerCompletedEventArgs^ e) {
 		toolStripStatusLabel4->Text = "Completed";
 		toolStripStatusLabel4->Image = Image::FromFile("Images\\completed.png");
 
@@ -1955,6 +1918,11 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 		contextMenuStrip1->Enabled = true;
 		instrumentsToolStripMenuItem->Enabled = true;
 		parametersToolStripMenuItem->Enabled = true;
+
+		if (flag) {
+			flag = false;
+			MessageBox::Show("Wrong location for saving the snapshot", "Error", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+		}
 	}
 	private: System::Void dataGridView1_SizeChanged(System::Object^ sender, System::EventArgs^ e) {
 		if (!dataGridView1->ColumnCount) return;
@@ -2205,8 +2173,6 @@ private: System::Void fourthStripMenuItem_Click(System::Object^ sender, System::
 }
 private: System::Void fifthStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 	textBox1->Text = fifthStripMenuItem->Text;
-}
-private: System::Void dataGridView1_CellContentClick(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e) {
 }
 };
 }

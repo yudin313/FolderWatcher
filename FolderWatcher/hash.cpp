@@ -99,42 +99,27 @@ inline std::string SHA512(char* path)
     return os.str();
 }
 
-int hashes_file(TCHAR* snap_path, FILE* hash_path, char* file_path)
+int hashes_file(FILE* hash_path, TCHAR* file_path)
 {
-    char* char_snap_path = new char[1024];
-    wcstombs(char_snap_path, snap_path, 1024);
 
-    std::string s;
+    char* CH_PATH = new char[4096];
+    sprintf(CH_PATH, "%ws", file_path);
 
-    std::ifstream fp1(char_snap_path);
-    s = std::string((std::istreambuf_iterator<char>(fp1)), std::istreambuf_iterator<char>());
-    fp1.close();
+    std::ifstream fp(CH_PATH);
+    std::string s = std::string((std::istreambuf_iterator<char>(fp)), std::istreambuf_iterator<char>());
+    fp.close();
 
     try {
-        fprintf(hash_path, "SHA256-snapshot: %s\n", SHA256(char_snap_path).c_str());
-        fprintf(hash_path, "SHA512-snapshot: %s\n", SHA512(char_snap_path).c_str());
+        fprintf(hash_path, "SHA256: %s\n", SHA256(CH_PATH).c_str());
+        fprintf(hash_path, "SHA512: %s\n", SHA512(CH_PATH).c_str());
         std::string output = sha3_512(s);
-        fprintf(hash_path, "SHA3-512-snapshot: %s\n", output.c_str());
+        fprintf(hash_path, "SHA3-512: %s\n", output.c_str());
     }
     catch (const std::exception& e) {
         std::cerr << "[fatal] " << e.what() << std::endl;
     }
 
-    std::ifstream fp2(file_path);
-    s = std::string((std::istreambuf_iterator<char>(fp2)), std::istreambuf_iterator<char>());
-    fp2.close();
-
-    try {
-        fprintf(hash_path, "SHA256-file: %s\n", SHA256(file_path).c_str());
-        fprintf(hash_path, "SHA512-file: %s\n", SHA512(file_path).c_str());
-        std::string output = sha3_512(s);
-        fprintf(hash_path, "SHA3-512-file: %s\n", output.c_str());
-    }
-    catch (const std::exception& e) {
-        std::cerr << "[fatal] " << e.what() << std::endl;
-    }
-
-    delete[] char_snap_path;
+    delete[] CH_PATH;
 
     return EXIT_SUCCESS;
 }

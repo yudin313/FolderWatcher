@@ -322,15 +322,5 @@ namespace New {
 		check_box[6] = (bool)checkBox7->Checked;
 		this->Close();
 	}
-	private: System::Void Parameters_Load(System::Object^ sender, System::EventArgs^ e) {
-	}
-private: System::Void Parameters_Load_1(System::Object^ sender, System::EventArgs^ e) {
-}
-private: System::Void Parameters_Load_2(System::Object^ sender, System::EventArgs^ e) {
-}
-private: System::Void Parameters_Load_3(System::Object^ sender, System::EventArgs^ e) {
-}
-private: System::Void Parameters_Load_4(System::Object^ sender, System::EventArgs^ e) {
-}
 };
 }
