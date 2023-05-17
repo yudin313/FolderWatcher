@@ -78,10 +78,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(SolutionDir)Dependencies;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Dependencies\openssl;$(LibraryPath)</LibraryPath>
+    <EnableManagedIncrementalBuild>false</EnableManagedIncrementalBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(SolutionDir)Dependencies;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Dependencies\openssl;$(LibraryPath)</LibraryPath>
+    <EnableManagedIncrementalBuild>false</EnableManagedIncrementalBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)Dependencies;$(IncludePath)</IncludePath>
@@ -115,6 +117,7 @@ copy "$(SolutionDir)"Dependencies\Interop\Interop.Microsoft.Office.Interop.Excel
     <Link>
       <AdditionalDependencies>libcrypto.lib;libssl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(SolutionDir)"Dependencies\openssl\libcrypto-3.dll "$(OutDir)"
@@ -130,6 +133,7 @@ copy "$(SolutionDir)"Dependencies\Interop\Interop.Microsoft.Office.Interop.Excel
     <Link>
       <AdditionalDependencies>libcrypto.lib;libssl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(SolutionDir)"Dependencies\openssl\libcrypto-3.dll "$(OutDir)"

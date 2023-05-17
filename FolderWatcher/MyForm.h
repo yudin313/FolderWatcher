@@ -201,7 +201,8 @@ namespace Example {
 			}
 		}
 		void refresh() {
-			toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
+			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
+			toolStripStatusLabel4->Image = dynamic_cast<Image^>(resources->GetObject(L"ready"));
 			toolStripStatusLabel4->Text = "Ready";
 			if (textBox1->Text == "")
 				return;
@@ -379,7 +380,8 @@ namespace Example {
 					for (int t = 0; t < dataGridView1->RowCount; t++)
 						dataGridView1->GridColor = Color::DimGray;
 				dataGridView1->DefaultCellStyle->SelectionBackColor = Color::DimGray;
-				pictureBox1->Image = Image::FromFile("Images\\image_black.png");
+				System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
+				pictureBox1->Image = dynamic_cast<Image^>(resources->GetObject(L"image_black"));
 			}
 			else {//светлая тема
 				this->BackColor = Color::WhiteSmoke;
@@ -424,7 +426,8 @@ namespace Example {
 						dataGridView1->GridColor = Color::White;
 				dataGridView1->DefaultCellStyle->SelectionBackColor = Color::LightGray;
 				dataGridView1->DefaultCellStyle->SelectionForeColor = Color::Black;
-				pictureBox1->Image = Image::FromFile("Images\\image_white.png");
+				System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
+				pictureBox1->Image = dynamic_cast<Image^>(resources->GetObject(L"image_white"));
 			}
 		}
 
@@ -1323,7 +1326,8 @@ namespace Example {
 #pragma endregion
 	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
 
-		toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
+		System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
+		toolStripStatusLabel4->Image = dynamic_cast<Image^>(resources->GetObject(L"ready"));
 		toolStripStatusLabel4->Text = "Ready";
 		listBox2->Items->Clear();
 		FolderBrowserDialog^ folderBrowserDialog1;
@@ -1376,7 +1380,8 @@ namespace Example {
 			MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
 	}
 	private: System::Void button4_Click(System::Object^ sender, System::EventArgs^ e) {
-		toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
+		System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
+		toolStripStatusLabel4->Image = dynamic_cast<Image^>(resources->GetObject(L"ready"));
 		toolStripStatusLabel4->Text = "Ready";
 		OpenFileDialog^ openFileDialog1 = gcnew OpenFileDialog();
 		openFileDialog1->Filter = "Snapshot files (*.snpsht)|*.snpsht";
@@ -1504,7 +1509,8 @@ namespace Example {
 		}
 	}
 	private: System::Void button5_Click(System::Object^ sender, System::EventArgs^ e) {
-		toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
+		System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
+		toolStripStatusLabel4->Image = dynamic_cast<Image^>(resources->GetObject(L"ready"));
 		toolStripStatusLabel4->Text = "Ready";
 		New::Parameters^ f = gcnew New::Parameters(gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
 		f->ShowDialog();
@@ -1733,7 +1739,8 @@ private: System::Void dataGridView1_CellDoubleClick(System::Object^ sender, Syst
 }
 
 private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e) {
-	toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
+	System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
+	toolStripStatusLabel4->Image = dynamic_cast<Image^>(resources->GetObject(L"ready"));
 	toolStripStatusLabel4->Text = "Ready";
 	New::MyForm1^ f = gcnew New::MyForm1(listBox2, gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
 	for (int i = 0; i < listBox2->Items->Count; i++)
@@ -1789,19 +1796,20 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 		ChangeMode();
 	}
 	private: System::Void MyForm_Load(System::Object^ sender, System::EventArgs^ e) {
-		exitToolStripMenuItem->Image = Image::FromFile("Images\\exit.png");;
-		parametersToolStripMenuItem->Image = Image::FromFile("Images\\browse.png");
-		button1->Image = Image::FromFile("Images\\browse.png");
-		button3->Image = Image::FromFile("Images\\refresh.png");
-		button6->Image = Image::FromFile("Images\\logs.png");
-		button7->Image = Image::FromFile("Images\\start.png");
-		button2->Image = Image::FromFile("Images\\snapshot.png");
-		button4->Image = Image::FromFile("Images\\export.png");
-		button5->Image = Image::FromFile("Images\\parametrs.png");
-		pictureBox1->Image = Image::FromFile("Images\\image_white.png");
-		contentToolStripMenuItem->Image = Image::FromFile("Images\\help.png");
-		infoToolStripMenuItem->Image = Image::FromFile("Images\\info.png");
-		toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
+		System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
+		exitToolStripMenuItem->Image = dynamic_cast<Image^>(resources->GetObject(L"exit"));
+		parametersToolStripMenuItem->Image = dynamic_cast<Image^>(resources->GetObject(L"browse"));
+		button1->Image = dynamic_cast<Image^>(resources->GetObject(L"browse"));
+		button3->Image = dynamic_cast<Image^>(resources->GetObject(L"refresh"));
+		button6->Image = dynamic_cast<Image^>(resources->GetObject(L"logs"));
+		button7->Image = dynamic_cast<Image^>(resources->GetObject(L"start"));
+		button2->Image = dynamic_cast<Image^>(resources->GetObject(L"snapshot"));
+		button4->Image = dynamic_cast<Image^>(resources->GetObject(L"export"));
+		button5->Image = dynamic_cast<Image^>(resources->GetObject(L"parametrs"));
+		pictureBox1->Image = dynamic_cast<Image^>(resources->GetObject(L"image_white"));
+		contentToolStripMenuItem->Image = dynamic_cast<Image^>(resources->GetObject(L"help"));
+		infoToolStripMenuItem->Image = dynamic_cast<Image^>(resources->GetObject(L"info"));
+		toolStripStatusLabel4->Image = dynamic_cast<Image^>(resources->GetObject(L"ready"));
 	}
 	private: System::Void parametersToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 		New::Parameters^ f = gcnew New::Parameters(gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
@@ -1848,14 +1856,16 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 			parametersToolStripMenuItem->Enabled = false;
 
 			toolStripStatusLabel4->Text = "Running";
-			toolStripStatusLabel4->Image = Image::FromFile("Images\\progress.gif");
+			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
+			pictureBox1->Image = dynamic_cast<Image^>(resources->GetObject(L"progress"));
 
 			backgroundWorker1->RunWorkerAsync();
 		}
 	}
 	private: System::Void button7_Click(System::Object^ sender, System::EventArgs^ e) {
 		
-		toolStripStatusLabel4->Image = Image::FromFile("Images\\ready.png");
+		System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
+		toolStripStatusLabel4->Image = dynamic_cast<Image^>(resources->GetObject(L"ready"));
 		toolStripStatusLabel4->Text = "Ready";
 		TCHAR szFolderPath[MAX_PATH];
 		BROWSEINFO browseInfo = { 0 };
@@ -1905,7 +1915,8 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 	}
 	private: System::Void MyForm::backgroundWorker1_RunWorkerCompleted(System::Object^ sender, RunWorkerCompletedEventArgs^ e) {
 		toolStripStatusLabel4->Text = "Completed";
-		toolStripStatusLabel4->Image = Image::FromFile("Images\\completed.png");
+		System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
+		pictureBox1->Image = dynamic_cast<Image^>(resources->GetObject(L"completed"));
 
 		button1->Enabled = true;
 		button2->Enabled = true;
