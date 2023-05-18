@@ -5,9 +5,7 @@ std::string bytes_to_hex_string(const std::vector<uint8_t>& bytes)
 {
     std::ostringstream stream;
     for (uint8_t b : bytes)
-    {
         stream << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(b);
-    }
     return stream.str();
 }
 
@@ -101,19 +99,18 @@ inline std::string SHA512(char* path)
 
 int hashes_file(FILE* hash_path, TCHAR* file_path)
 {
-
     char* CH_PATH = new char[4096];
     sprintf(CH_PATH, "%ws", file_path);
 
-    std::ifstream fp(CH_PATH);
-    std::string s = std::string((std::istreambuf_iterator<char>(fp)), std::istreambuf_iterator<char>());
-    fp.close();
+    std::ifstream fin(CH_PATH, std::ios::binary);
+    std::ostringstream ostrm;
+    ostrm << fin.rdbuf();
 
     try {
-        fprintf(hash_path, "SHA256: %s\n", SHA256(CH_PATH).c_str());
-        fprintf(hash_path, "SHA512: %s\n", SHA512(CH_PATH).c_str());
-        std::string output = sha3_512(s);
-        fprintf(hash_path, "SHA3-512: %s\n", output.c_str());
+        fprintf(hash_path, "%s\n", SHA256(CH_PATH).c_str());
+        fprintf(hash_path, "%s\n", SHA512(CH_PATH).c_str());
+        std::string output = sha3_512(ostrm.str());
+        fprintf(hash_path, "%s\n", output.c_str());
     }
     catch (const std::exception& e) {
         std::cerr << "[fatal] " << e.what() << std::endl;
