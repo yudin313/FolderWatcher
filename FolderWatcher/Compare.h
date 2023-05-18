@@ -723,36 +723,34 @@ private: System::Void dataGridView1_SizeChanged(System::Object^ sender, System::
 	dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = 40;
 	count--;
 	int width = dataGridView1->Width - 40;
-	if (sum > 1) {
+	if (check_box[0] == true) {
 		dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.25;
-		sum--;
 		count--;
-		if (check_box[1] == true) {
-			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.75 / sum;
-			count--;
-		}
-		if (check_box[2] == true) {
-			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.75 / sum;
-			count--;
-		}
-		if (check_box[3] == true) {
-			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.75 / sum;
-			count--;
-		}
-		if (check_box[4] == true) {
-			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.75 / sum;
-			count--;
-		}
-		if (check_box[5] == true) {
-			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.75 / sum;
-			count--;
-		}
-		if (check_box[6] == true) {
-			dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.75 / sum;
-		}
 	}
-	else
-		dataGridView1->Columns[0]->Width = dataGridView1->Width;
+	if (check_box[1] == true) {
+		dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.75 / sum;
+		count--;
+	}
+	if (check_box[2] == true) {
+		dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.75 / sum;
+		count--;
+	}
+	if (check_box[3] == true) {
+		dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.75 / sum;
+		count--;
+	}
+	if (check_box[4] == true) {
+		dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.75 / sum;
+		count--;
+	}
+	if (check_box[5] == true) {
+		dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.75 / sum;
+		count--;
+	}
+	if (check_box[6] == true) {
+		dataGridView1->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.75 / sum;
+		count--;
+	}
 }
 private: System::Void dataGridView2_SizeChanged(System::Object^ sender, System::EventArgs^ e) {
 	if (!dataGridView2->ColumnCount) return;
@@ -764,36 +762,34 @@ private: System::Void dataGridView2_SizeChanged(System::Object^ sender, System::
 	dataGridView2->Columns[dataGridView1->ColumnCount - count]->Width = 40;
 	count--;
 	int width = dataGridView2->Width - 40;
-	if (sum > 1) {
-		dataGridView2->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.25;
-		sum--;
+	if (check_box[0] == true) {
+		dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = width * 0.25;
 		count--;
-		if (check_box[1] == true) {
-			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = width * 0.75 / sum;
-			count--;
-		}
-		if (check_box[2] == true) {
-			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = width * 0.75 / sum;
-			count--;
-		}
-		if (check_box[3] == true) {
-			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = width * 0.75 / sum;
-			count--;
-		}
-		if (check_box[4] == true) {
-			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = width * 0.75 / sum;
-			count--;
-		}
-		if (check_box[5] == true) {
-			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = width * 0.75 / sum;
-			count--;
-		}
-		if (check_box[6] == true) {
-			dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = width * 0.75 / sum;
-		}
 	}
-	else
-		dataGridView2->Columns[0]->Width = dataGridView2->Width;
+	if (check_box[1] == true) {
+		dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = width * 0.75 / sum;
+		count--;
+	}
+	if (check_box[2] == true) {
+		dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = width * 0.75 / sum;
+		count--;
+	}
+	if (check_box[3] == true) {
+		dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = width * 0.75 / sum;
+		count--;
+	}
+	if (check_box[4] == true) {
+		dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = width * 0.75 / sum;
+		count--;
+	}
+	if (check_box[5] == true) {
+		dataGridView2->Columns[dataGridView2->ColumnCount - count]->Width = width * 0.75 / sum;
+		count--;
+	}
+	if (check_box[6] == true) {
+		dataGridView2->Columns[dataGridView1->ColumnCount - count]->Width = width * 0.75 / sum;
+		count--;
+	}
 }
 private: System::Void dataGridView1_CellClick(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e) {
 	dataGridView1->ClearSelection();

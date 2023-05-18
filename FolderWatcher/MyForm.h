@@ -206,7 +206,7 @@ namespace Example {
 			toolStripStatusLabel4->Text = "Ready";
 			if (textBox1->Text == "")
 				return;
-			listBox2->Items->Clear();
+			//listBox2->Items->Clear();
 			dataGridView1->Rows->Clear();
 			dataGridView1->Columns->Clear();
 
@@ -1329,14 +1329,15 @@ namespace Example {
 		System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
 		toolStripStatusLabel4->Image = dynamic_cast<Image^>(resources->GetObject(L"ready"));
 		toolStripStatusLabel4->Text = "Ready";
-		listBox2->Items->Clear();
+		//listBox2->Items->Clear();
 		FolderBrowserDialog^ folderBrowserDialog1;
 		folderBrowserDialog1 = gcnew System::Windows::Forms::FolderBrowserDialog;
 
 		System::Windows::Forms::DialogResult result = folderBrowserDialog1->ShowDialog();
 
-		textBox1->Text = folderBrowserDialog1->SelectedPath;
-		if (textBox1->Text == "")
+		if (folderBrowserDialog1->SelectedPath != "")
+			textBox1->Text = folderBrowserDialog1->SelectedPath;
+		else
 			return;
 
 		WIN32_FIND_DATAW wfd;
@@ -1392,6 +1393,7 @@ namespace Example {
 			textBox1->Text = openFileDialog1->FileName;
 			//заполнение таблицы из слепка
 
+			setlocale(LC_ALL, "");
 			dataGridView1->Rows->Clear();
 			dataGridView1->Columns->Clear();
 
@@ -1494,7 +1496,7 @@ namespace Example {
 					row_cnt++;
 				}
 
-				//ChangeMode();
+				ChangeMode();
 				dataGridView1->Visible = true;
 				dataGridView1->ClearSelection();
 				dataGridView1->AutoResizeRows();
@@ -1857,7 +1859,7 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 
 			toolStripStatusLabel4->Text = "Running";
 			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
-			pictureBox1->Image = dynamic_cast<Image^>(resources->GetObject(L"progress"));
+			toolStripStatusLabel4->Image = dynamic_cast<Image^>(resources->GetObject(L"progress"));
 
 			backgroundWorker1->RunWorkerAsync();
 		}
@@ -1889,9 +1891,15 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 		}
 		String^ path_to_first_table = textBox1->Text;
 		String^ path_to_second_table = msclr::interop::marshal_as<String^>(szFolderPath);
+
+		struct stat s;
+		pin_ptr<const wchar_t> wname = PtrToStringChars(path_to_second_table);
+		char output[256];
+		sprintf(output, "%ws", wname);
+
 		if (path_to_first_table == path_to_second_table)
 			MessageBox::Show("The same paths are given", "Error", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
-		else if (path_to_second_table != "") {
+		else if (stat(output, &s) == 0) {
 			New::Compare^ f = gcnew New::Compare(gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid), path_to_first_table, path_to_second_table);
 			f->ShowDialog();
 		}
@@ -1916,7 +1924,7 @@ private: System::Void button6_Click(System::Object^ sender, System::EventArgs^ e
 	private: System::Void MyForm::backgroundWorker1_RunWorkerCompleted(System::Object^ sender, RunWorkerCompletedEventArgs^ e) {
 		toolStripStatusLabel4->Text = "Completed";
 		System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
-		pictureBox1->Image = dynamic_cast<Image^>(resources->GetObject(L"completed"));
+		toolStripStatusLabel4->Image = dynamic_cast<Image^>(resources->GetObject(L"completed"));
 
 		button1->Enabled = true;
 		button2->Enabled = true;

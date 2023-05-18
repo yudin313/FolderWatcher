@@ -36,27 +36,28 @@ void if_file(TCHAR* NAME, FILE* output_file)
 
     counter++;
 
-    //открываем файл для чтения таким образом, чтобы позже узнать размер файла
-    HANDLE hFile;
-    hFile = CreateFile(NAME, GENERIC_READ, 0, NULL, OPEN_EXISTING,
-        FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, NULL);
-
     //запись имени и формата файла
     if (check_box[0])
         fprintf(output_file, "%ws\n", &NAME[start_length_name]);
     else
         fprintf(output_file, "-1\n"); 
 
+    //открываем файл для чтения таким образом, чтобы позже узнать размер файла
+    HANDLE hFile;
+    hFile = CreateFile(NAME, GENERIC_READ, 0, NULL, OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, NULL);
+
     //запись размера
     if (check_box[1]) {
         LARGE_INTEGER u_winFsz;
         GetFileSizeEx(hFile, &u_winFsz);
-        CloseHandle(hFile);
         _file_size = u_winFsz.QuadPart;
         fprintf(output_file, "%lld\n", _file_size);
     }
     else
         fprintf(output_file, "-1\n");
+
+    CloseHandle(hFile);
 
     //атрибуты
     if (check_box[2]) {
