@@ -233,6 +233,7 @@ namespace New {
 				textBox1->Text = "Depth: " + depth;
 				textBox1->Visible = true;
 			}
+			this->textBox1->Enabled = false;
 			// 
 			// listBox1
 			// 
@@ -293,6 +294,7 @@ namespace New {
 		System::Object^ depth = listBox1->SelectedItem;
 		textBox1->Text = "Depth: " + depth->ToString();
 		textBox1->Visible = true;
+		textBox1->Enabled = false;
 		listBox1->Visible = false;
 	}
 	private: System::Void checkBox8_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
@@ -302,17 +304,18 @@ namespace New {
 		else {
 			listBox1->Visible = false;
 			textBox1->Visible = false;
+			depth = 0;
 		}
 	}
 	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
-		System::String^ tmp = textBox1->ToString();
-		int len = tmp->Length;
-		if (len == 44)
-			depth = tmp[43] - 48;
-		else if (len == 45)
-			depth = 10;
-		else
-			depth = 0;
+		if (checkBox8->Checked) {
+			System::String^ tmp = textBox1->ToString();
+			int len = tmp->Length;
+			if (len == 44)
+				depth = tmp[43] - 48;
+			else if (len == 45)
+				depth = 10;
+		}
 		check_box[0] = (bool)checkBox1->Checked;
 		check_box[1] = (bool)checkBox2->Checked;
 		check_box[2] = (bool)checkBox3->Checked;
